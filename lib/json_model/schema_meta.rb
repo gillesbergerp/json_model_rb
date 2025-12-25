@@ -11,10 +11,10 @@ module JsonModel
       # @param [Class] subclass
       def self.inherited(subclass)
         super
-        return unless schema_id
-
         subclass.meta_attributes[:'$ref'] = schema_id
       end
+
+      schema_id(name)
     end
 
     class_methods do

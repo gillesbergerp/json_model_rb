@@ -29,8 +29,8 @@ module JsonModel
 
       # @return [Hash, nil]
       def properties_as_schema
-        if properties.any?
-          properties
+        if local_properties.any?
+          local_properties
             .sort_by { |key, _property| key }
             .map { |_key, property| property.as_schema }
             .inject({}, &:merge)
@@ -39,17 +39,32 @@ module JsonModel
 
       # @return [Array, nil]
       def required_properties_as_schema
-        if properties.any?
-          properties
+        if local_properties.any?
+          local_properties
             .values
             .select(&:required?)
             .map(&:alias)
             .sort
         end
       end
-    end
 
-    private
+      # @return [Array<Class>]
+      def parent_schemas
+        @parent_schemas ||= ancestors.select { |klass| klass != self && klass < Schema }
+      end
+
+      # @return [Hash]
+      def local_properties
+        if !defined?(@local_properties)
+          ancestor_properties = parent_schemas.flat_map { |property| property.properties.values }
+          @local_properties = properties.select do |_key, property|
+            ancestor_properties.none? { |ancestor_property| ancestor_property == property }
+          end
+        end
+
+        @local_properties
+      end
+    end
 
     # @param [Hash, nil] attributes
     def assign_attributes(attributes)

@@ -56,7 +56,7 @@ RSpec.describe(JsonModel::Schema) do
 
     it('returns an empty schema') do
       expect(klass.as_schema)
-        .to(eq({type: 'object'}))
+        .to(eq({ type: 'object' }))
     end
 
     it('includes the schema id') do
@@ -110,6 +110,8 @@ RSpec.describe(JsonModel::Schema) do
 
       it('uses $ref for inherited schemas if they have a schema id') do
         klass.schema_id('https://example.com/schemas/example.json')
+        klass.property(:foo, type: String)
+
         expect(child.as_schema)
           .to(
             eq(
@@ -117,26 +119,6 @@ RSpec.describe(JsonModel::Schema) do
                 '$id': 'https://example.com/schemas/child.json',
                 '$ref': 'https://example.com/schemas/example.json',
                 type: 'object',
-              },
-            ),
-          )
-      end
-
-      it('merges properties from parent classes without schema ids') do
-        klass.property(:foo, type: String)
-        child.property(:bar, type: Float)
-
-        expect(child.as_schema)
-          .to(
-            eq(
-              {
-                '$id': 'https://example.com/schemas/child.json',
-                type: 'object',
-                properties: {
-                  bar: { type: 'number' },
-                  foo: { type: 'string' },
-                },
-                required: %i(bar foo),
               },
             ),
           )
