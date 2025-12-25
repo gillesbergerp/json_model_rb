@@ -15,7 +15,7 @@ RSpec.describe(JsonModel::Properties) do
     end
 
     it('adds a property by name') do
-      klass.property(:foo)
+      klass.property(:foo, type: String)
 
       expect(klass.properties.keys)
         .to(eq(%i(foo)))
