@@ -4,6 +4,9 @@ module JsonModel
   class TypeSpec
     class Primitive
       class String < Primitive
+        # @param [Integer, nil] min_length
+        # @param [Integer, nil] max_length
+        # @param [Regexp, nil] pattern
         def initialize(min_length: nil, max_length: nil, pattern: nil)
           super('string')
 

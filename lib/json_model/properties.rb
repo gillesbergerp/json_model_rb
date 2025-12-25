@@ -20,6 +20,11 @@ module JsonModel
             .sort_by { |key, _property| key }
             .map { |_key, property| property.as_schema }
             .inject({}, &:merge),
+          required: properties
+            .values
+            .select(&:required?)
+            .map(&:alias)
+            .sort,
         }
       end
 
@@ -27,8 +32,8 @@ module JsonModel
       # @param [Object] type
       # @param [Hash] options
       def property(name, type:, **options)
-        property_options = options.slice(:default)
-        resolved_type = TypeSpec.resolve(type, **options.except(:default))
+        property_options = options.slice(:default, :optional)
+        resolved_type = TypeSpec.resolve(type, **options.except(:default, :optional))
         add_property(name, type: resolved_type, **property_options)
         descendants.each { |subclass| subclass.add_property(name, type: resolved_type, **property_options) }
       end
