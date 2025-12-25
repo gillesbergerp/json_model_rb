@@ -27,4 +27,23 @@ RSpec.describe(JsonModel::Schema) do
         .to(raise_error(JsonModel::Errors::UnknownAttributeError))
     end
   end
+
+  describe('#valid?') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::Schema)
+        property(:foo, type: String, min_length: 3)
+      end
+    end
+
+    it('returns false for invalid values') do
+      expect(klass.new(foo: 'ba').valid?)
+        .to(be(false))
+    end
+
+    it('returns true for valid values') do
+      expect(klass.new(foo: 'bar').valid?)
+        .to(be(true))
+    end
+  end
 end

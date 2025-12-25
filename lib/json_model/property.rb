@@ -2,7 +2,7 @@
 
 module JsonModel
   class Property
-    attr_reader(:name, :default)
+    attr_reader(:name, :default, :type)
 
     # @param [Symbol] name
     # @param [TypeSpec] type
@@ -18,8 +18,13 @@ module JsonModel
     # @return [Hash]
     def as_schema
       {
-        @name => @type.as_schema.merge({ default: default }.compact),
+        name => type.as_schema.merge({ default: default }.compact),
       }
+    end
+
+    # @param [ActiveModel::Validations]
+    def register_validations(klass)
+      type.register_validations(name, klass)
     end
   end
 end

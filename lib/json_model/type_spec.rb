@@ -9,15 +9,20 @@ module JsonModel
       raise(NotImplementedError)
     end
 
+    # @param [Symbol] name
+    # @param [ActiveModel::Validations]
+    def register_validations(name, klass) end
+
     class << self
       # @param [Object] type
+      # @param [Hash] options
       # @return [TypeSpec]
-      def resolve(type)
+      def resolve(type, **options)
         case type
         when TypeSpec
           type
         when Class
-          resolve_type_from_class(type)
+          resolve_type_from_class(type, **options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end
@@ -26,16 +31,17 @@ module JsonModel
       private
 
       # @param [Object] type
+      # @param [Hash] options
       # @return [TypeSpec]
-      def resolve_type_from_class(type)
+      def resolve_type_from_class(type, **options)
         if type == String
-          Primitive::String.new
+          Primitive::String.new(**options)
         elsif type == Integer
-          Primitive::Integer.new
+          Primitive::Integer.new(**options)
         elsif type == Float
-          Primitive::Number.new
+          Primitive::Number.new(**options)
         elsif [TrueClass, FalseClass].include?(type)
-          Primitive::Boolean.new
+          Primitive::Boolean.new(**options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end
