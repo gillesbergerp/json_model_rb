@@ -3,10 +3,7 @@
 module JsonModel
   class TypeSpec
     class Primitive
-      class Number < Numeric
-        def initialize
-          super('number')
-        end
+      class Numeric < Primitive
       end
     end
   end

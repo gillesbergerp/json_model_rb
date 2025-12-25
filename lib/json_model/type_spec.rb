@@ -10,7 +10,7 @@ module JsonModel
     end
 
     # @param [Symbol] name
-    # @param [ActiveModel::Validations]
+    # @param [ActiveModel::Validations] klass
     def register_validations(name, klass) end
 
     class << self
