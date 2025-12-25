@@ -50,7 +50,13 @@ module JsonModel
 
       # @param [Property] property
       def define_getter(property)
-        define_method(property.name) { attributes[property.name] }
+        define_method(property.name) do
+          if attributes.key?(property.name)
+            attributes[property.name]
+          else
+            property.default
+          end
+        end
       end
 
       # @param [Property] property

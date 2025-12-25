@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# frozen_string_literal:
 require('spec_helper')
 
 RSpec.describe(JsonModel::Properties) do
@@ -84,6 +83,23 @@ RSpec.describe(JsonModel::Properties) do
 
       expect(instance.foo)
         .to(eq('bar'))
+    end
+
+    context('with a default value') do
+      before { klass.property(:foo, type: String, default: 'bar') }
+
+      it('returns the default value') do
+        expect(klass.new.foo)
+          .to(eq('bar'))
+      end
+
+      it('returns the updated value') do
+        instance = klass.new
+        instance.foo = 'foo'
+
+        expect(instance.foo)
+          .to(eq('foo'))
+      end
     end
   end
 end
