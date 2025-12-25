@@ -76,7 +76,7 @@ RSpec.describe(JsonModel::Schema) do
       klass.property(:foo, type: String)
       klass.property(:bar, type: Float, optional: true)
       klass.property(:baz, type: T::Enum[1, 'a', nil])
-      klass.property(:bam, type: T::AllOf[String, Float])
+      klass.property(:bam, type: T::Array[T::AllOf[String, Float]])
 
       expect(klass.as_schema)
         .to(
@@ -84,7 +84,10 @@ RSpec.describe(JsonModel::Schema) do
             {
               properties: {
                 bam: {
-                  allOf: [{ type: 'string' }, { type: 'number' }],
+                  type: 'array',
+                  items: {
+                    allOf: [{ type: 'string' }, { type: 'number' }],
+                  },
                 },
                 bar: { type: 'number' },
                 baz: { enum: [1, 'a', nil] },
