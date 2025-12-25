@@ -4,8 +4,9 @@ module JsonModel
   class TypeSpec
     class Primitive
       class Integer < Numeric
-        def initialize
-          super('integer')
+        # @param [Hash] options
+        def initialize(**options)
+          super('integer', **options)
         end
 
         # @param [Symbol] name

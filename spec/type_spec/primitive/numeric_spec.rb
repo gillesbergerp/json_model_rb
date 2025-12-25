@@ -2,16 +2,11 @@
 
 require('spec_helper')
 
-RSpec.describe(JsonModel::TypeSpec::Primitive::Integer) do
+RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
   describe('#as_schema') do
-    it('returns an integer schema') do
-      expect(subject.as_schema)
-        .to(eq({ type: 'integer' }))
-    end
-
     it('includes the multipleOf attribute') do
-      expect(described_class.new(multiple_of: 5).as_schema)
-        .to(eq({ type: 'integer', multipleOf: 5 }))
+      expect(described_class.new('number', multiple_of: 5).as_schema)
+        .to(eq({ type: 'number', multipleOf: 5 }))
     end
   end
 
@@ -27,24 +22,24 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Integer) do
       end
     end
 
-    context('for integer-ness') do
+    context('for multiple of') do
       before do
         described_class
-          .new
+          .new('number', multiple_of: 5)
           .register_validations(:foo, klass)
       end
 
-      it('fails the validation for floats') do
-        instance = klass.new(foo: 1.234)
+      it('fails the validation for non-multiples') do
+        instance = klass.new(foo: 1234)
 
         expect(instance.valid?)
           .to(be(false))
         expect(instance.errors.map(&:type))
-          .to(eq(%i(not_an_integer)))
+          .to(eq(['must be a multiple of 5']))
       end
 
       it('succeeds the validation for integers') do
-        instance = klass.new(foo: 1234)
+        instance = klass.new(foo: 12_345)
 
         expect(instance.valid?)
           .to(be(true))

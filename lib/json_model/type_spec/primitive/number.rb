@@ -4,8 +4,9 @@ module JsonModel
   class TypeSpec
     class Primitive
       class Number < Numeric
-        def initialize
-          super('number')
+        # @param [Hash] options
+        def initialize(**options)
+          super('number', **options)
         end
       end
     end
