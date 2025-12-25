@@ -42,6 +42,8 @@ module JsonModel
           Primitive::Number.new(**options)
         elsif [TrueClass, FalseClass].include?(type)
           Primitive::Boolean.new(**options)
+        elsif type == NilClass
+          Primitive::Null.new(**options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end

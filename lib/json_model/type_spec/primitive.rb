@@ -20,5 +20,6 @@ end
 require_relative('primitive/boolean')
 require_relative('primitive/numeric')
 require_relative('primitive/integer')
+require_relative('primitive/null')
 require_relative('primitive/number')
 require_relative('primitive/string')
