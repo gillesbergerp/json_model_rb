@@ -75,6 +75,7 @@ RSpec.describe(JsonModel::Schema) do
     it('returns properties as schema') do
       klass.property(:foo, type: String)
       klass.property(:bar, type: Float, optional: true)
+      klass.property(:baz, enum: [1, 'a', nil])
 
       expect(klass.as_schema)
         .to(
@@ -82,6 +83,7 @@ RSpec.describe(JsonModel::Schema) do
             {
               properties: {
                 bar: { type: 'number' },
+                baz: { enum: [1, 'a', nil] },
                 foo: { type: 'string' },
               },
               required: %i(foo),

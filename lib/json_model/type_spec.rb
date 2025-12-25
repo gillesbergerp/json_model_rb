@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative('type_spec/array')
+require_relative('type_spec/enum')
 require_relative('type_spec/primitive')
 
 module JsonModel
@@ -15,11 +16,13 @@ module JsonModel
     def register_validations(name, klass) end
 
     class << self
-      # @param [Object] type
+      # @param [Object, nil] type
       # @param [Hash] options
       # @return [TypeSpec]
       def resolve(type, **options)
         case type
+        when NilClass
+          TypeSpec::Enum.new(**options)
         when TypeSpec
           type
         when Class
