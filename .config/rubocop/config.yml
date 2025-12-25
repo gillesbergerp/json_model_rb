@@ -1,0 +1,32 @@
+inherit_from: default.yml
+
+inherit_mode:
+  merge:
+    - Exclude
+
+Layout/BeginEndAlignment:
+  EnforcedStyleAlignWith: begin
+Layout/BlockAlignment:
+  EnforcedStyleAlignWith: start_of_block
+Layout/FirstArrayElementLineBreak:
+  Enabled: true
+Layout/FirstHashElementLineBreak:
+  Enabled: true
+Layout/FirstMethodArgumentLineBreak:
+  Enabled: true
+Layout/FirstMethodParameterLineBreak:
+  Enabled: true
+
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  IgnoreMacros: false
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%w': '()'
+    '%i': '()'
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: diff_comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: diff_comma
