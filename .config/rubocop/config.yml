@@ -17,9 +17,13 @@ Layout/FirstMethodArgumentLineBreak:
 Layout/FirstMethodParameterLineBreak:
   Enabled: true
 
+Style/IfUnlessModifier:
+  Enabled: false
 Style/MethodCallWithArgsParentheses:
   Enabled: true
   IgnoreMacros: false
+Style/NegatedIf:
+  Enabled: false
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
     '%w': '()'
