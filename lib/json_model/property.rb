@@ -2,6 +2,8 @@
 
 module JsonModel
   class Property
+    attr_reader(:name)
+
     # @param [Symbol] name
     # @param [TypeSpec] type
     # @param [Hash] options

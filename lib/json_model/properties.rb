@@ -7,6 +7,7 @@ module JsonModel
     included do
       extend(ActiveSupport::DescendantsTracker)
 
+      class_attribute(:attributes, instance_writer: false, default: {})
       class_attribute(:properties, instance_writer: false, default: {})
     end
 
@@ -36,7 +37,25 @@ module JsonModel
       # @param [Object] type
       # @param [Hash] options
       def add_property(name, type:, **options)
-        properties[name] = Property.new(name, type: type, **options)
+        property = Property.new(name, type: type, **options)
+        properties[name] = property
+        define_accessors(property)
+      end
+
+      # @param [Property] property
+      def define_accessors(property)
+        define_getter(property)
+        define_setter(property)
+      end
+
+      # @param [Property] property
+      def define_getter(property)
+        define_method(property.name) { attributes[property.name] }
+      end
+
+      # @param [Property] property
+      def define_setter(property)
+        define_method("#{property.name}=") { |value| attributes[property.name] = value }
       end
     end
   end

@@ -55,4 +55,35 @@ RSpec.describe(JsonModel::Properties) do
         )
     end
   end
+
+  describe('getter and setter') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::Properties)
+        property(:foo, type: String)
+      end
+    end
+
+    it('responds to the getter') do
+      expect(klass.new)
+        .to(respond_to(:foo))
+    end
+
+    it('responds to the setter') do
+      expect(klass.new)
+        .to(respond_to(:foo=))
+    end
+
+    it('allows updating the property') do
+      instance = klass.new
+
+      expect(instance.foo)
+        .to(be_nil)
+
+      instance.foo = 'bar'
+
+      expect(instance.foo)
+        .to(eq('bar'))
+    end
+  end
 end
