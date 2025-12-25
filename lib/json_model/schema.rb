@@ -18,17 +18,33 @@ module JsonModel
       def as_schema
         meta_attributes
           .merge(
-            properties: properties
-                          .sort_by { |key, _property| key }
-                          .map { |_key, property| property.as_schema }
-                          .inject({}, &:merge),
-            required: properties
-                        .values
-                        .select(&:required?)
-                        .map(&:alias)
-                        .sort,
+            properties: properties_as_schema,
+            required: required_properties_as_schema,
           )
           .compact
+      end
+
+      private
+
+      # @return [Hash, nil]
+      def properties_as_schema
+        if properties.any?
+          properties
+            .sort_by { |key, _property| key }
+            .map { |_key, property| property.as_schema }
+            .inject({}, &:merge)
+        end
+      end
+
+      # @return [Array, nil]
+      def required_properties_as_schema
+        if properties.any?
+          properties
+            .values
+            .select(&:required?)
+            .map(&:alias)
+            .sort
+        end
       end
     end
 

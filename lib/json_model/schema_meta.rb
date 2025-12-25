@@ -6,6 +6,15 @@ module JsonModel
 
     included do
       class_attribute(:meta_attributes, instance_writer: false, default: {})
+      class_attribute(:ref_schema, instance_writer: false)
+
+      # @param [Class] subclass
+      def self.inherited(subclass)
+        super
+        return unless schema_id
+
+        subclass.meta_attributes[:'$ref'] = schema_id
+      end
     end
 
     class_methods do
