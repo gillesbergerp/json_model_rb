@@ -4,11 +4,12 @@ module JsonModel
   class TypeSpec
     class Primitive
       class String < Primitive
-        def initialize(min_length: nil, max_length: nil)
+        def initialize(min_length: nil, max_length: nil, pattern: nil)
           super('string')
 
           @min_length = min_length
           @max_length = max_length
+          @pattern = pattern
         end
 
         # @return [Hash]
@@ -17,6 +18,7 @@ module JsonModel
             {
               minLength: @min_length,
               maxLength: @max_length,
+              pattern: @pattern&.source,
             }.compact,
           )
         end
@@ -28,6 +30,9 @@ module JsonModel
 
           if !@min_length.nil? || !@max_length.nil?
             klass.validates(name, length: { minimum: @min_length, maximum: @max_length }.compact)
+          end
+          if @pattern
+            klass.validates(name, format: { with: @pattern })
           end
         end
       end

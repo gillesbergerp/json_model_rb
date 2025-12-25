@@ -18,6 +18,11 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::String) do
       expect(described_class.new(max_length: 10).as_schema)
         .to(eq({ type: 'string', maxLength: 10 }))
     end
+
+    it('includes the pattern attribute') do
+      expect(described_class.new(pattern: /\A\w+\z/).as_schema)
+        .to(eq({ type: 'string', pattern: '\\A\\w+\\z' }))
+    end
   end
 
   describe('.register_validations') do
@@ -75,6 +80,32 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::String) do
 
       it('succeeds the validation for valid strings') do
         instance = klass.new(foo: 'ba')
+
+        expect(instance.valid?)
+          .to(be(true))
+        expect(instance.errors)
+          .to(be_empty)
+      end
+    end
+
+    context('for a pattern') do
+      before do
+        described_class
+          .new(pattern: /\A\w+\z/)
+          .register_validations(:foo, klass)
+      end
+
+      it('fails the validation for an invalid value') do
+        instance = klass.new(foo: ' bar')
+
+        expect(instance.valid?)
+          .to(be(false))
+        expect(instance.errors.map(&:type))
+          .to(eq(%i(invalid)))
+      end
+
+      it('succeeds the validation for valid strings') do
+        instance = klass.new(foo: 'bar')
 
         expect(instance.valid?)
           .to(be(true))
