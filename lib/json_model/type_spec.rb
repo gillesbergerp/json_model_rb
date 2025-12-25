@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative('type_spec/array')
+require_relative('type_spec/composition')
 require_relative('type_spec/enum')
 require_relative('type_spec/primitive')
 
