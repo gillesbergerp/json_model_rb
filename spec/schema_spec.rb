@@ -46,4 +46,57 @@ RSpec.describe(JsonModel::Schema) do
         .to(be(true))
     end
   end
+
+  describe('.as_schema') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::Schema)
+      end
+    end
+
+    it('returns an empty schema') do
+      expect(klass.as_schema)
+        .to(
+          eq(
+            {
+              properties: {},
+              required: [],
+            },
+          ),
+        )
+    end
+
+    it('includes the schema id') do
+      klass.schema_id('https://example.com/schemas/example.json')
+
+      expect(klass.as_schema)
+        .to(
+          eq(
+            {
+              '$id': 'https://example.com/schemas/example.json',
+              properties: {},
+              required: [],
+            },
+          ),
+        )
+    end
+
+    it('returns properties as schema') do
+      klass.property(:foo, type: String)
+      klass.property(:bar, type: Float, optional: true)
+
+      expect(klass.as_schema)
+        .to(
+          eq(
+            {
+              properties: {
+                bar: { type: 'number' },
+                foo: { type: 'string' },
+              },
+              required: %i(foo),
+            },
+          ),
+        )
+    end
+  end
 end

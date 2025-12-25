@@ -25,44 +25,6 @@ RSpec.describe(JsonModel::Properties) do
     end
   end
 
-  describe('.as_schema') do
-    let(:klass) do
-      Class.new do
-        include(JsonModel::Properties)
-      end
-    end
-
-    it('returns an empty schema') do
-      expect(klass.as_schema)
-        .to(
-          eq(
-            {
-              properties: {},
-              required: [],
-            },
-          ),
-        )
-    end
-
-    it('returns properties as schema') do
-      klass.property(:foo, type: String)
-      klass.property(:bar, type: Float, optional: true)
-
-      expect(klass.as_schema)
-        .to(
-          eq(
-            {
-              properties: {
-                bar: { type: 'number' },
-                foo: { type: 'string' },
-              },
-              required: %i(foo),
-            },
-          ),
-        )
-    end
-  end
-
   describe('getter and setter') do
     let(:klass) do
       Class.new do

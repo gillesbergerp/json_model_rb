@@ -13,21 +13,6 @@ module JsonModel
     end
 
     class_methods do
-      # @return [Hash]
-      def as_schema
-        {
-          properties: properties
-            .sort_by { |key, _property| key }
-            .map { |_key, property| property.as_schema }
-            .inject({}, &:merge),
-          required: properties
-            .values
-            .select(&:required?)
-            .map(&:alias)
-            .sort,
-        }
-      end
-
       # @param [Symbol] name
       # @param [Object] type
       # @param [Hash] options
