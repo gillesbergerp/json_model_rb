@@ -17,13 +17,11 @@ module JsonModel
     def register_validations(name, klass) end
 
     class << self
-      # @param [Object, nil] type
+      # @param [Object] type
       # @param [Hash] options
       # @return [TypeSpec]
       def resolve(type, **options)
         case type
-        when NilClass
-          TypeSpec::Enum.new(**options)
         when TypeSpec
           type
         when Class

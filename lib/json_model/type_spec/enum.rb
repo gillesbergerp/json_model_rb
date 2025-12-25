@@ -3,11 +3,12 @@
 module JsonModel
   class TypeSpec
     class Enum < TypeSpec
-      # @param [Array<Object>] enum
-      def initialize(enum:)
-        @enum = enum
+      # @param [Array<Object, nil>] values
+      def initialize(*values)
+        super()
+        @values = values
 
-        if @enum.blank?
+        if @values.blank?
           raise(ArgumentError, 'Enum type spec requires a non-empty enum array')
         end
       end
@@ -15,7 +16,7 @@ module JsonModel
       # @return [Hash]
       def as_schema
         {
-          enum: @enum,
+          enum: @values,
         }.compact
       end
 
@@ -24,7 +25,7 @@ module JsonModel
       def register_validations(name, klass)
         super
 
-        klass.validates(name, inclusion: { in: @enum })
+        klass.validates(name, inclusion: { in: @values })
       end
     end
   end

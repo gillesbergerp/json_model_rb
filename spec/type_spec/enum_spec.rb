@@ -5,7 +5,7 @@ require('spec_helper')
 RSpec.describe(JsonModel::TypeSpec::Enum) do
   describe('#as_schema') do
     it('returns an enum schema') do
-      expect(described_class.new(enum: [1, 'a']).as_schema)
+      expect(described_class.new(1, 'a').as_schema)
         .to(
           eq(
             {
@@ -31,7 +31,7 @@ RSpec.describe(JsonModel::TypeSpec::Enum) do
     context('for nil values') do
       it('fails the validation if not allowed') do
         described_class
-          .new(enum: [1])
+          .new(1)
           .register_validations(:foo, klass)
         instance = klass.new(foo: nil)
 
@@ -43,7 +43,7 @@ RSpec.describe(JsonModel::TypeSpec::Enum) do
 
       it('succeeds the validation if allowed') do
         described_class
-          .new(enum: [nil])
+          .new(nil)
           .register_validations(:foo, klass)
         instance = klass.new(foo: nil)
 
@@ -57,7 +57,7 @@ RSpec.describe(JsonModel::TypeSpec::Enum) do
     context('for non-nil values') do
       before do
         described_class
-          .new(enum: [1, 'a'])
+          .new(1, 'a')
           .register_validations(:foo, klass)
       end
 
