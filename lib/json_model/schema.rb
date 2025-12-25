@@ -21,6 +21,7 @@ module JsonModel
             properties: properties_as_schema,
             required: required_properties_as_schema,
           )
+          .merge(type: 'object')
           .compact
       end
 

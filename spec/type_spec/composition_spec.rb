@@ -23,6 +23,7 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
               allOf: [
                 { type: 'string' },
                 {
+                  type: 'object',
                   properties: { foo: { type: 'string' } },
                   required: %i(foo),
                 },
