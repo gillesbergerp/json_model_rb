@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative('type_spec/array')
 require_relative('type_spec/primitive')
 
 module JsonModel
