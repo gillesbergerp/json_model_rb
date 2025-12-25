@@ -3,10 +3,19 @@
 module JsonModel
   class Property
     # @param [Symbol] name
+    # @param [TypeSpec] type
     # @param [Hash] options
-    def initialize(name, **options)
+    def initialize(name, type:, **options)
       @name = name
+      @type = type
       @options = options
+    end
+
+    # @return [Hash]
+    def as_schema
+      {
+        @name => @type.as_schema,
+      }
     end
   end
 end
