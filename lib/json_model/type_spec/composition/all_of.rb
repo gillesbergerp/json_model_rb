@@ -5,8 +5,9 @@ module JsonModel
     class Composition
       class AllOf < Composition
         # @param [TypeSpec] types
-        def initialize(*types)
-          super(:allOf, *types)
+        # @param [Hash] options
+        def initialize(*types, **options)
+          super(:allOf, *types, **options)
         end
       end
     end

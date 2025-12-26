@@ -15,11 +15,12 @@ module JsonModel
         @unique_items = unique_items
       end
 
+      # @param [Hash] options
       # @return [Hash]
-      def as_schema
+      def as_schema(**options)
         {
           type: 'array',
-          items: @type.as_schema,
+          items: @type.as_schema(**options),
           minItems: @min_items,
           maxItems: @max_items,
           uniqueItems: @unique_items,
@@ -37,6 +38,11 @@ module JsonModel
         if @unique_items
           register_uniqueness_validation(name, klass)
         end
+      end
+
+      # @return [Array<TypeSpec>]
+      def referenced_schemas
+        @type.referenced_schemas
       end
 
       private

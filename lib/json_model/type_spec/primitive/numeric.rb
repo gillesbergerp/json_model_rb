@@ -26,8 +26,9 @@ module JsonModel
           @exclusive_maximum = exclusive_maximum
         end
 
+        # @param [Hash] options
         # @return [Hash]
-        def as_schema
+        def as_schema(**options)
           super
             .merge(
               {

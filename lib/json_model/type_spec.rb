@@ -3,18 +3,25 @@
 require_relative('type_spec/array')
 require_relative('type_spec/composition')
 require_relative('type_spec/enum')
+require_relative('type_spec/object')
 require_relative('type_spec/primitive')
 
 module JsonModel
   class TypeSpec
+    # @param [Hash] options
     # @return [Hash]
-    def as_schema
+    def as_schema(**options)
       raise(NotImplementedError)
     end
 
     # @param [Symbol] name
     # @param [ActiveModel::Validations] klass
     def register_validations(name, klass) end
+
+    # @return [Array<TypeSpec>]
+    def referenced_schemas
+      []
+    end
 
     class << self
       # @param [Object] type
@@ -26,6 +33,8 @@ module JsonModel
           type
         when Class
           resolve_type_from_class(type, **options)
+        when T::AllOf, T::Array, T::Enum
+          type.to_type_spec(**options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end
@@ -47,6 +56,8 @@ module JsonModel
           Primitive::Boolean.new(**options)
         elsif type == NilClass
           Primitive::Null.new(**options)
+        elsif type < Schema
+          TypeSpec::Object.new(type, **options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end

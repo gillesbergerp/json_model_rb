@@ -32,5 +32,56 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
           ),
         )
     end
+
+    it('uses external references') do
+      expect(
+        described_class
+          .new(
+            :allOf,
+            Class.new do
+              include(JsonModel::Schema)
+              property(:foo, type: String)
+              schema_id('https://example.com/schemas/foo.json')
+            end,
+          )
+          .as_schema(ref_mode: JsonModel::RefMode::EXTERNAL),
+      )
+        .to(
+          eq(
+            {
+              allOf: [
+                { '$ref': 'https://example.com/schemas/foo.json' },
+              ],
+            },
+          ),
+        )
+    end
+
+    it('uses local references') do
+      expect(
+        described_class
+          .new(
+            :allOf,
+            Class.new do
+              include(JsonModel::Schema)
+              property(:foo, type: String)
+
+              def self.name
+                'Foo'
+              end
+            end,
+          )
+          .as_schema(ref_mode: JsonModel::RefMode::LOCAL),
+      )
+        .to(
+          eq(
+            {
+              allOf: [
+                { '$ref': '#/$defs/Foo' },
+              ],
+            },
+          ),
+        )
+    end
   end
 end

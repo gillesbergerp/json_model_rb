@@ -15,8 +15,9 @@ module JsonModel
           @pattern = pattern
         end
 
+        # @param [Hash] options
         # @return [Hash]
-        def as_schema
+        def as_schema(**options)
           super.merge(
             {
               minLength: @min_length,

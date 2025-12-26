@@ -13,8 +13,9 @@ module JsonModel
         end
       end
 
+      # @param [Hash] _options
       # @return [Hash]
-      def as_schema
+      def as_schema(**_options)
         {
           enum: @values,
         }.compact

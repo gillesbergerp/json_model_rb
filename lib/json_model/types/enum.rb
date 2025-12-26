@@ -1,12 +1,22 @@
 # frozen_string_literal: true
 
 module T
-  module Enum
+  class Enum
+    # @param [Array<Object>] values
+    def initialize(*values)
+      @values = values
+    end
+
+    # @return [JsonModel::TypeSpec::Enum]
+    def to_type_spec(**options)
+      JsonModel::TypeSpec::Enum.new(*@values, **options)
+    end
+
     class << self
       # @param [Array] args
-      # @return [JsonModel::TypeSpec::Enum]
+      # @return [Enum]
       def [](*args)
-        JsonModel::TypeSpec::Enum.new(*args)
+        Enum.new(*args)
       end
     end
   end

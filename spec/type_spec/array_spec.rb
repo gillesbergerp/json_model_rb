@@ -61,6 +61,53 @@ RSpec.describe(JsonModel::TypeSpec::Array) do
           ),
         )
     end
+
+    it('uses external references') do
+      expect(
+        described_class
+          .new(
+            Class.new do
+              include(JsonModel::Schema)
+              property(:foo, type: String)
+              schema_id('https://example.com/schemas/foo.json')
+            end,
+          )
+          .as_schema(ref_mode: JsonModel::RefMode::EXTERNAL),
+      )
+        .to(
+          eq(
+            {
+              type: 'array',
+              items: { '$ref': 'https://example.com/schemas/foo.json' },
+            },
+          ),
+        )
+    end
+
+    it('uses local references') do
+      expect(
+        described_class
+          .new(
+            Class.new do
+              include(JsonModel::Schema)
+              property(:foo, type: String)
+
+              def self.name
+                'Foo'
+              end
+            end,
+          )
+          .as_schema(ref_mode: JsonModel::RefMode::LOCAL),
+      )
+        .to(
+          eq(
+            {
+              type: 'array',
+              items: { '$ref': '#/$defs/Foo' },
+            },
+          ),
+        )
+    end
   end
 
   describe('.register_validations') do

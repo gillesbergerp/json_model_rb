@@ -9,8 +9,9 @@ module JsonModel
         @type = type
       end
 
+      # @param [Hash] _options
       # @return [Hash]
-      def as_schema
+      def as_schema(**_options)
         { type: @type }
       end
     end

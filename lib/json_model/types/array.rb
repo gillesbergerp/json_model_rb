@@ -1,14 +1,25 @@
 # frozen_string_literal: true
 
 module T
-  module Array
+  class Array
+    # @param [Class] type
+    def initialize(type)
+      @type = type
+    end
+
+    # @return [JsonModel::TypeSpec::Array]
+    def to_type_spec(**options)
+      JsonModel::TypeSpec::Array.new(
+        JsonModel::TypeSpec.resolve(@type),
+        **options,
+      )
+    end
+
     class << self
       # @param [Class] type
-      # @return [JsonModel::TypeSpec::Array]
+      # @return [Array]
       def [](type)
-        JsonModel::TypeSpec::Array.new(
-          JsonModel::TypeSpec.resolve(type),
-        )
+        Array.new(type)
       end
     end
   end

@@ -74,17 +74,21 @@ RSpec.describe(JsonModel::Schema) do
     end
 
     it('returns properties as schema') do
+      klass.schema_id('https://example.com/schemas/example.json')
       klass.property(:foo, type: String)
       klass.property(:bar, type: Float, optional: true)
       klass.property(:baz, type: T::Enum[1, 'a', nil])
       klass.property(:bam, type: T::Array[T::AllOf[String, Float]])
+      klass.property(:bal, type: klass, ref_mode: JsonModel::RefMode::EXTERNAL, optional: true)
 
       expect(klass.as_schema)
         .to(
           eq(
             {
+              '$id': 'https://example.com/schemas/example.json',
               type: 'object',
               properties: {
+                bal: { '$ref': 'https://example.com/schemas/example.json' },
                 bam: {
                   type: 'array',
                   items: {
@@ -96,6 +100,73 @@ RSpec.describe(JsonModel::Schema) do
                 foo: { type: 'string' },
               },
               required: %i(bam baz foo),
+            },
+          ),
+        )
+    end
+
+    it('collects local references in $defs') do
+      klass.property(
+        :foo,
+        type: Class.new do
+          include(JsonModel::Schema)
+          property(:foo, type: String)
+        end,
+      )
+      klass.property(
+        :bam,
+        type: Class.new do
+          include(JsonModel::Schema)
+          property(:bam, type: String)
+          schema_id('https://example.com/schemas/bam.json')
+        end,
+        ref_mode: JsonModel::RefMode::EXTERNAL,
+      )
+      klass.property(
+        :bar,
+        type: T::Array[
+          T::Array[
+            Class.new do
+              include(JsonModel::Schema)
+              property(:bar, type: String)
+
+              def self.name
+                'Bar'
+              end
+            end,
+          ],
+        ],
+        ref_mode: JsonModel::RefMode::LOCAL,
+      )
+
+      expect(klass.as_schema)
+        .to(
+          eq(
+            {
+              type: 'object',
+              properties: {
+                bam: { '$ref': 'https://example.com/schemas/bam.json' },
+                bar: {
+                  type: 'array',
+                  items: {
+                    type: 'array',
+                    items: { '$ref': '#/$defs/Bar' },
+                  },
+                },
+                foo: {
+                  type: 'object',
+                  properties: { foo: { type: 'string' } },
+                  required: %i(foo),
+                },
+              },
+              '$defs': {
+                Bar: {
+                  type: 'object',
+                  properties: { bar: { type: 'string' } },
+                  required: %i(bar),
+                },
+              },
+              required: %i(bam bar foo),
             },
           ),
         )

@@ -8,17 +8,22 @@ module JsonModel
     # @param [TypeSpec] type
     # @param [Object, nil] default
     # @param [Boolean] optional
-    def initialize(name, type:, default: nil, optional: false)
+    # @param [Symbol] ref_mode
+    def initialize(name, type:, default: nil, optional: false, ref_mode: RefMode::INLINE)
       @name = name
       @type = type
       @default = default
       @optional = optional
+      @ref_mode = ref_mode
     end
 
+    # @param [Hash] options
     # @return [Hash]
-    def as_schema
+    def as_schema(**options)
       {
-        self.alias => type.as_schema.merge({ default: default }.compact),
+        self.alias => type
+                        .as_schema(**options, ref_mode: @ref_mode)
+                        .merge({ default: default }.compact),
       }
     end
 
@@ -38,6 +43,15 @@ module JsonModel
     # @return [Symbol]
     def alias
       name
+    end
+
+    # @return [Array]
+    def referenced_schemas
+      if @ref_mode == RefMode::LOCAL
+        type.referenced_schemas
+      else
+        []
+      end
     end
   end
 end
