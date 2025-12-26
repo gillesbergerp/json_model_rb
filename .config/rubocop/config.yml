@@ -4,6 +4,12 @@ inherit_mode:
   merge:
     - Exclude
 
+AllCops:
+  EnabledByDefault: true
+  NewCops: enable
+
+Layout:
+  Severity: error
 Layout/BeginEndAlignment:
   EnforcedStyleAlignWith: begin
 Layout/BlockAlignment:
@@ -30,6 +36,13 @@ Layout/MultilineMethodCallIndentation:
 Layout/MultilineOperationIndentation:
   EnforcedStyle: indented
 
+Lint:
+  Severity: error
+
+Style:
+  Severity: error
+Style/Documentation:
+  Enabled: false
 Style/GuardClause:
   Enabled: false
 Style/IfUnlessModifier:

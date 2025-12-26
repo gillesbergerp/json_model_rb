@@ -29,6 +29,7 @@ RSpec.describe(JsonModel::Properties) do
     let(:klass) do
       Class.new do
         include(JsonModel::Properties)
+
         property(:foo, type: String)
       end
     end

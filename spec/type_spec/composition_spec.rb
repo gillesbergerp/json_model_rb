@@ -12,6 +12,7 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
             JsonModel::TypeSpec::Primitive::String.new,
             Class.new do
               include(JsonModel::Schema)
+
               property(:foo, type: String)
             end,
           )
@@ -40,6 +41,7 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
             :allOf,
             Class.new do
               include(JsonModel::Schema)
+
               property(:foo, type: String)
               schema_id('https://example.com/schemas/foo.json')
             end,
@@ -64,6 +66,7 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
             :allOf,
             Class.new do
               include(JsonModel::Schema)
+
               property(:foo, type: String)
 
               def self.name

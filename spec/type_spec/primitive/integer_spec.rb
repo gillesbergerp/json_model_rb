@@ -19,6 +19,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Integer) do
     let(:klass) do
       Class.new do
         include(ActiveModel::Validations)
+
         attr_accessor(:foo)
 
         def initialize(foo:)

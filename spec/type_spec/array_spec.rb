@@ -68,6 +68,7 @@ RSpec.describe(JsonModel::TypeSpec::Array) do
           .new(
             Class.new do
               include(JsonModel::Schema)
+
               property(:foo, type: String)
               schema_id('https://example.com/schemas/foo.json')
             end,
@@ -90,6 +91,7 @@ RSpec.describe(JsonModel::TypeSpec::Array) do
           .new(
             Class.new do
               include(JsonModel::Schema)
+
               property(:foo, type: String)
 
               def self.name
@@ -114,6 +116,7 @@ RSpec.describe(JsonModel::TypeSpec::Array) do
     let(:klass) do
       Class.new do
         include(ActiveModel::Validations)
+
         attr_accessor(:foo)
 
         def initialize(foo:)

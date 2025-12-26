@@ -20,6 +20,7 @@ RSpec.describe(JsonModel::TypeSpec::Enum) do
     let(:klass) do
       Class.new do
         include(ActiveModel::Validations)
+
         attr_accessor(:foo)
 
         def initialize(foo:)

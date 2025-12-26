@@ -34,6 +34,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     let(:klass) do
       Class.new do
         include(ActiveModel::Validations)
+
         attr_accessor(:foo)
 
         def initialize(foo:)

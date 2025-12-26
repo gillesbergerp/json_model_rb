@@ -19,7 +19,7 @@ module JsonModel
       # @param [Class] subclass
       def self.inherited(subclass)
         super
-        subclass.meta_attributes[:'$ref'] = schema_id
+        subclass.meta_attributes[:$ref] = schema_id
       end
 
       schema_id(name)
@@ -30,9 +30,9 @@ module JsonModel
       # @return [String, nil]
       def schema_id(id = nil)
         if id
-          meta_attributes[:'$id'] = URI.parse(id).to_s
+          meta_attributes[:$id] = URI.parse(id).to_s
         else
-          meta_attributes[:'$id']
+          meta_attributes[:$id]
         end
       end
 
@@ -50,9 +50,9 @@ module JsonModel
       # @return [Boolean]
       def schema_version(version = nil)
         if version.nil?
-          meta_attributes[:'$schema']
+          meta_attributes[:$schema]
         else
-          meta_attributes[:'$schema'] = SCHEMA_VERSIONS[version]
+          meta_attributes[:$schema] = SCHEMA_VERSIONS[version]
         end
       end
     end

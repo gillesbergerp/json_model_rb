@@ -17,6 +17,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('rake')
   spec.add_development_dependency('rspec', '~> 3.0')
   spec.add_development_dependency('rubocop', '~> 1.82')
-  spec.add_runtime_dependency('activemodel', '>= 6.0')
-  spec.add_runtime_dependency('activesupport', '>= 6.0')
+  spec.add_development_dependency('rubocop-rspec', '~> 3.8')
+  spec.add_dependency('activemodel', '>= 6.0')
+  spec.add_dependency('activesupport', '>= 6.0')
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end

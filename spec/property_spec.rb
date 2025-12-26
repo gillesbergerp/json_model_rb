@@ -7,6 +7,7 @@ RSpec.describe(JsonModel::Property) do
     let(:klass) do
       Class.new do
         include(ActiveModel::Validations)
+
         attr_accessor(:foo)
       end
     end

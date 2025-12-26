@@ -7,6 +7,7 @@ RSpec.describe(JsonModel::Schema) do
     let(:klass) do
       Class.new do
         include(JsonModel::Schema)
+
         property(:foo, type: String)
       end
     end
@@ -38,6 +39,7 @@ RSpec.describe(JsonModel::Schema) do
     let(:klass) do
       Class.new do
         include(JsonModel::Schema)
+
         property(:foo, type: String, min_length: 3)
       end
     end
@@ -116,6 +118,7 @@ RSpec.describe(JsonModel::Schema) do
         :foo,
         type: Class.new do
           include(JsonModel::Schema)
+
           property(:foo, type: String)
         end,
       )
@@ -123,6 +126,7 @@ RSpec.describe(JsonModel::Schema) do
         :bam,
         type: Class.new do
           include(JsonModel::Schema)
+
           property(:bam, type: String)
           schema_id('https://example.com/schemas/bam.json')
         end,
@@ -134,6 +138,7 @@ RSpec.describe(JsonModel::Schema) do
           T::Array[
             Class.new do
               include(JsonModel::Schema)
+
               property(:bar, type: String)
 
               def self.name
