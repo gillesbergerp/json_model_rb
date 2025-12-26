@@ -27,6 +27,16 @@ module JsonModel
           meta_attributes[:'$id']
         end
       end
+
+      # @param [Boolean, nil] value
+      # @return [Boolean]
+      def additional_properties(value = nil)
+        if value.nil?
+          meta_attributes[:additionalProperties] || false
+        else
+          meta_attributes[:additionalProperties] = value
+        end
+      end
     end
   end
 end

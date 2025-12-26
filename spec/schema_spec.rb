@@ -22,9 +22,15 @@ RSpec.describe(JsonModel::Schema) do
         .to(eq('bar'))
     end
 
-    it('raises an error for unknown attributes') do
+    it('raises an error for unknown attributes when additional properties are not allowed') do
       expect { klass.new(bar: 'baz') }
         .to(raise_error(JsonModel::Errors::UnknownAttributeError))
+    end
+
+    it('does not raise an error for unknown attributes when additional properties are allowed') do
+      klass.additional_properties(true)
+
+      klass.new(bar: 'baz')
     end
   end
 

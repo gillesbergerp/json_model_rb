@@ -23,11 +23,11 @@ module JsonModel
     # @param [Symbol] name
     # @param [Object] value
     def assign_attribute(name, value)
-      if !respond_to?("#{name}=")
+      if respond_to?("#{name}=")
+        send("#{name}=", value)
+      elsif !self.class.additional_properties
         raise(Errors::UnknownAttributeError.new(self.class, name))
       end
-
-      send("#{name}=", value)
     end
 
     class_methods do
@@ -77,9 +77,9 @@ module JsonModel
 
       def defs_as_schema
         referenced_schemas = local_properties
-                                    .values
-                                    .flat_map(&:referenced_schemas)
-                                    .uniq
+                               .values
+                               .flat_map(&:referenced_schemas)
+                               .uniq
 
         if referenced_schemas.any?
           referenced_schemas.to_h { |type| [type.name.to_sym, type.as_schema] }
