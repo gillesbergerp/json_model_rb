@@ -28,6 +28,26 @@ RSpec.describe(JsonModel::SchemaMeta) do
     end
   end
 
+  describe('.schema_version') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::SchemaMeta)
+      end
+    end
+
+    it('is nil by default') do
+      expect(klass.schema_version)
+        .to(be_nil)
+    end
+
+    it('can be changed') do
+      klass.schema_version(:draft202012)
+
+      expect(klass.schema_version)
+        .to(eq('https://json-schema.org/draft/2020-12/schema'))
+    end
+  end
+
   describe('.additional_properties') do
     let(:klass) do
       Class.new do
