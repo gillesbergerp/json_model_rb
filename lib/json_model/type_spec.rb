@@ -33,7 +33,7 @@ module JsonModel
           type
         when Class
           resolve_type_from_class(type, **options)
-        when T::AllOf, T::Array, T::Enum
+        when T::AllOf, T::AnyOf, T::OneOf, T::Array, T::Enum
           type.to_type_spec(**options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")

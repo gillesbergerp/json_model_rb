@@ -28,3 +28,5 @@ module JsonModel
 end
 
 require_relative('composition/all_of')
+require_relative('composition/any_of')
+require_relative('composition/one_of')
