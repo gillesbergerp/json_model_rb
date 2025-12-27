@@ -64,4 +64,23 @@ RSpec.describe(JsonModel::Property) do
       end
     end
   end
+
+  describe('#as_schema') do
+    it('renders the property as a schema') do
+      expect(described_class.new(:foo, type: JsonModel::TypeSpec::Primitive::String.new).as_schema)
+        .to(eq({ foo: { type: 'string' } }))
+    end
+
+    it('respects the "as" option') do
+      expect(described_class.new(:foo, type: JsonModel::TypeSpec::Primitive::String.new, as: :bar).as_schema)
+        .to(eq({ bar: { type: 'string' } }))
+    end
+
+    it('falls back to the configured naming strategy') do
+      JsonModel.configure { |config| config.property_naming_strategy = :camel_case }
+
+      expect(described_class.new(:foo_bar, type: JsonModel::TypeSpec::Primitive::String.new).as_schema)
+        .to(eq({ fooBar: { type: 'string' } }))
+    end
+  end
 end
