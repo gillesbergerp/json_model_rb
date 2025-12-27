@@ -28,6 +28,8 @@ module JsonModel
       end
     end
 
+    option(:schema_id_base_uri, default: nil)
+
     option(:schema_id_naming_strategy, default: :none) do |value|
       if value.is_a?(Proc)
         value

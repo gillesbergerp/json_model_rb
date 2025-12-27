@@ -47,6 +47,20 @@ RSpec.describe(JsonModel::Config) do
     end
   end
 
+  describe('#schema_id_base_uri') do
+    it('defaults to nil') do
+      expect(JsonModel.config.schema_id_base_uri)
+        .to(be_nil)
+    end
+
+    it('can be changed to false') do
+      JsonModel.configure { |config| config.schema_id_base_uri = 'https://example.com/schemas/' }
+
+      expect(JsonModel.config.schema_id_base_uri)
+        .to(eq('https://example.com/schemas/'))
+    end
+  end
+
   describe('#schema_id_naming_strategy') do
     let(:klass) do
       Class.new do

@@ -22,8 +22,16 @@ RSpec.describe(JsonModel::SchemaMeta) do
         .to(eq('foo'))
     end
 
+    it('respects the schema_id_base_uri') do
+      JsonModel.configure { |config| config.schema_id_base_uri = 'http://example.com/schemas/' }
+      klass.schema_id('foo')
+
+      expect(klass.schema_id)
+        .to(eq('http://example.com/schemas/foo'))
+    end
+
     it('raises an error if the schema id is invalid') do
-      expect { klass.schema_id(123) }
+      expect { klass.schema_id('http://example .com') }
         .to(raise_error(URI::InvalidURIError))
     end
   end

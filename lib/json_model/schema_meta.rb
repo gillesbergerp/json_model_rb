@@ -30,7 +30,7 @@ module JsonModel
       # @return [String, nil]
       def schema_id(id = nil)
         if id
-          meta_attributes[:$id] = URI.parse(id).to_s
+          meta_attributes[:$id] = URI.parse("#{JsonModel.config.schema_id_base_uri}#{id}").to_s
         else
           meta_attributes[:$id]
         end
