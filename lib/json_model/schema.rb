@@ -11,6 +11,10 @@ module JsonModel
       return unless attributes
 
       assign_attributes(attributes)
+
+      if JsonModel.config.validate_after_instantiation
+        validate!
+      end
     end
 
     private
@@ -25,7 +29,7 @@ module JsonModel
     def assign_attribute(name, value)
       if respond_to?("#{name}=")
         send("#{name}=", value)
-      elsif !self.class.additional_properties
+      elsif !self.class.additional_properties && JsonModel.config.validate_after_instantiation
         raise(Errors::UnknownAttributeError.new(self.class, name))
       end
     end

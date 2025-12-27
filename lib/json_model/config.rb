@@ -20,5 +20,7 @@ module JsonModel
         PROPERTY_NAMING_STRATEGIES[value]
       end
     end
+
+    option(:validate_after_instantiation, default: true)
   end
 end

@@ -8,7 +8,11 @@ RSpec.describe(JsonModel::Schema) do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:foo, type: String)
+        property(:foo, type: String, optional: true)
+
+        def self.name
+          'Foo'
+        end
       end
     end
 
@@ -42,6 +46,10 @@ RSpec.describe(JsonModel::Schema) do
 
         property(:foo, type: String, min_length: 3)
       end
+    end
+
+    before do
+      JsonModel.configure { |config| config.validate_after_instantiation = false }
     end
 
     it('returns false for invalid values') do
