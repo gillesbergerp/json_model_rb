@@ -13,11 +13,26 @@ module JsonModel
       pascal_case: ->(property_name) { property_name.to_s.tr('-', '_').camelize },
     }.freeze
 
+    SCHEMA_ID_NAMING_STRATEGIES = {
+      class_name: ->(klass) { klass.name.demodulize },
+      kebab_case_class_name: ->(klass) { klass.name.demodulize.underscore.tr('_', '-') },
+      none: ->(_) {},
+      snake_case_class_name: ->(klass) { klass.name.demodulize.underscore },
+    }.freeze
+
     option(:property_naming_strategy, default: :identity) do |value|
       if value.is_a?(Proc)
         value
       else
         PROPERTY_NAMING_STRATEGIES[value]
+      end
+    end
+
+    option(:schema_id_naming_strategy, default: :none) do |value|
+      if value.is_a?(Proc)
+        value
+      else
+        SCHEMA_ID_NAMING_STRATEGIES[value]
       end
     end
 

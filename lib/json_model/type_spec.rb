@@ -24,7 +24,7 @@ module JsonModel
     end
 
     class << self
-      # @param [Object] type
+      # @param [Object, Class] type
       # @param [Hash] options
       # @return [TypeSpec]
       def resolve(type, **options)
@@ -42,7 +42,7 @@ module JsonModel
 
       private
 
-      # @param [Object] type
+      # @param [Object, Class] type
       # @param [Hash] options
       # @return [TypeSpec]
       def resolve_type_from_class(type, **options)

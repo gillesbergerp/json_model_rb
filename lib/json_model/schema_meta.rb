@@ -22,7 +22,7 @@ module JsonModel
         subclass.meta_attributes[:$ref] = schema_id
       end
 
-      schema_id(name)
+      schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
     end
 
     class_methods do

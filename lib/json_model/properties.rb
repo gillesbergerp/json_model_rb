@@ -14,7 +14,7 @@ module JsonModel
 
     class_methods do
       # @param [Symbol] name
-      # @param [Object] type
+      # @param [Object, Class] type
       # @param [Hash] options
       def property(name, type:, **options)
         property_options = options.slice(:default, :optional, :ref_mode)
