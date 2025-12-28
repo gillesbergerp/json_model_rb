@@ -23,6 +23,12 @@ module JsonModel
       def referenced_schemas
         @types.flat_map(&:referenced_schemas)
       end
+
+      # @param [::Object] json
+      # @return [::Object]
+      def cast(json)
+        raise(NotImplementedError)
+      end
     end
   end
 end

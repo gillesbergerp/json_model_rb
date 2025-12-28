@@ -6,7 +6,7 @@ module JsonModel
       class Number < Numeric
         # @param [Hash] options
         def initialize(**options)
-          super('number', **options)
+          super(types: [Float], schema_type: 'number', **options)
         end
       end
     end

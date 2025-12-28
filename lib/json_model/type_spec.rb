@@ -23,6 +23,12 @@ module JsonModel
       []
     end
 
+    # @param [::Object] json
+    # @return [::Object]
+    def cast(json)
+      json
+    end
+
     class << self
       # @param [Object, Class] type
       # @param [Hash] options

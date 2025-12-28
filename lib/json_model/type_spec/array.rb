@@ -45,6 +45,12 @@ module JsonModel
         @type.referenced_schemas
       end
 
+      # @param [::Object] json
+      # @return [::Object]
+      def cast(json)
+        json.map { |item| @type.cast(item) }
+      end
+
       private
 
       # @param [Symbol] name

@@ -5,27 +5,27 @@ require('spec_helper')
 RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
   describe('#as_schema') do
     it('includes the multipleOf attribute') do
-      expect(described_class.new('number', multiple_of: 5).as_schema)
+      expect(described_class.new(types: [Integer, Float], schema_type: 'number', multiple_of: 5).as_schema)
         .to(eq({ type: 'number', multipleOf: 5 }))
     end
 
     it('includes the minimum attribute') do
-      expect(described_class.new('number', minimum: 5).as_schema)
+      expect(described_class.new(types: [Integer, Float], schema_type: 'number', minimum: 5).as_schema)
         .to(eq({ type: 'number', minimum: 5 }))
     end
 
     it('includes the maximum attribute') do
-      expect(described_class.new('number', maximum: 5).as_schema)
+      expect(described_class.new(types: [Integer, Float], schema_type: 'number', maximum: 5).as_schema)
         .to(eq({ type: 'number', maximum: 5 }))
     end
 
     it('includes the exclusiveMinimum attribute') do
-      expect(described_class.new('number', exclusive_minimum: 5).as_schema)
+      expect(described_class.new(types: [Integer, Float], schema_type: 'number', exclusive_minimum: 5).as_schema)
         .to(eq({ type: 'number', exclusiveMinimum: 5 }))
     end
 
     it('includes the exclusiveMaximum attribute') do
-      expect(described_class.new('number', exclusive_maximum: 5).as_schema)
+      expect(described_class.new(types: [Integer, Float], schema_type: 'number', exclusive_maximum: 5).as_schema)
         .to(eq({ type: 'number', exclusiveMaximum: 5 }))
     end
   end
@@ -46,7 +46,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     context('for multiple of') do
       before do
         described_class
-          .new('number', multiple_of: 5)
+          .new(types: [Integer, Float], schema_type: 'number', multiple_of: 5)
           .register_validations(:foo, klass)
       end
 
@@ -72,7 +72,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     context('for minimum') do
       before do
         described_class
-          .new('number', minimum: 5)
+          .new(types: [Integer, Float], schema_type: 'number', minimum: 5)
           .register_validations(:foo, klass)
       end
 
@@ -98,7 +98,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     context('for maximum') do
       before do
         described_class
-          .new('number', maximum: 5)
+          .new(types: [Integer, Float], schema_type: 'number', maximum: 5)
           .register_validations(:foo, klass)
       end
 
@@ -124,7 +124,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     context('for exclusive_minimum') do
       before do
         described_class
-          .new('number', exclusive_minimum: 5)
+          .new(types: [Integer, Float], schema_type: 'number', exclusive_minimum: 5)
           .register_validations(:foo, klass)
       end
 
@@ -150,7 +150,7 @@ RSpec.describe(JsonModel::TypeSpec::Primitive::Numeric) do
     context('for exclusive_maximum') do
       before do
         described_class
-          .new('number', exclusive_maximum: 5)
+          .new(types: [Integer, Float], schema_type: 'number', exclusive_maximum: 5)
           .register_validations(:foo, klass)
       end
 

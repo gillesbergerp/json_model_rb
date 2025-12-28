@@ -82,7 +82,7 @@ module JsonModel
         # @param [Regexp, nil] pattern
         # @param [String, nil] format
         def initialize(min_length: nil, max_length: nil, pattern: nil, format: nil)
-          super('string')
+          super(types: [::String], schema_type: 'string')
 
           @min_length = min_length
           @max_length = max_length

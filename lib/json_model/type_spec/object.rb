@@ -19,6 +19,12 @@ module JsonModel
       def referenced_schemas
         [@type]
       end
+
+      # @param [::Object] json
+      # @return [::Object]
+      def cast(json)
+        @type.new(**json)
+      end
     end
   end
 end

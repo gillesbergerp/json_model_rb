@@ -5,7 +5,7 @@ module JsonModel
     class Primitive
       class Null < Primitive
         def initialize
-          super('null')
+          super(types: [NilClass], schema_type: 'null')
         end
       end
     end

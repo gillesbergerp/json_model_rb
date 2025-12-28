@@ -6,7 +6,7 @@ module JsonModel
       class Integer < Numeric
         # @param [Hash] options
         def initialize(**options)
-          super('integer', **options)
+          super(types: [::Integer], schema_type: 'integer', **options)
         end
 
         # @param [Symbol] name

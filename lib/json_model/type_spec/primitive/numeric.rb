@@ -4,21 +4,23 @@ module JsonModel
   class TypeSpec
     class Primitive
       class Numeric < Primitive
-        # @param [String] type
+        # @param [::Array<Class>] types
+        # @param [String] schema_type
         # @param [Integer, nil] multiple_of
         # @param [Integer, nil] minimum
         # @param [Integer, nil] maximum
         # @param [Integer, nil] exclusive_minimum
         # @param [Integer, nil] exclusive_maximum
         def initialize(
-          type,
+          types:,
+          schema_type:,
           multiple_of: nil,
           minimum: nil,
           maximum: nil,
           exclusive_minimum: nil,
           exclusive_maximum: nil
         )
-          super(type)
+          super(types: types, schema_type: schema_type)
           @multiple_of = multiple_of
           @minimum = minimum
           @maximum = maximum

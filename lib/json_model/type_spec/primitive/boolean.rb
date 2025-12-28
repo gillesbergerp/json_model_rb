@@ -5,7 +5,7 @@ module JsonModel
     class Primitive
       class Boolean < Primitive
         def initialize
-          super('boolean')
+          super(types: [TrueClass, FalseClass], schema_type: 'boolean')
         end
       end
     end

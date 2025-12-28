@@ -3,16 +3,30 @@
 module JsonModel
   class TypeSpec
     class Primitive < TypeSpec
-      # @param [String] type
-      def initialize(type)
+      # @param [::Array<Class>] types
+      # @param [String] schema_type
+      def initialize(types:, schema_type:)
         super()
-        @type = type
+        @types = types
+        @schema_type = schema_type
       end
 
       # @param [Hash] _options
       # @return [Hash]
       def as_schema(**_options)
-        { type: @type }
+        { type: @schema_type }
+      end
+
+      # @param [::Object] json
+      # @return [::Object]
+      def cast(json)
+        if json.nil?
+          nil
+        elsif @types.any? { |type| json.is_a?(type) }
+          json
+        else
+          raise(Errors::TypeError, "Expected #{@type}, got #{json.class} (#{json.inspect})")
+        end
       end
     end
   end

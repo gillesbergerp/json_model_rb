@@ -54,7 +54,7 @@ module JsonModel
 
       # @param [Property] property
       def define_setter(property)
-        define_method("#{property.name}=") { |value| attributes[property.name] = value }
+        define_method("#{property.name}=") { |value| attributes[property.name] = property.type.cast(value) }
       end
 
       # @param [Property] property

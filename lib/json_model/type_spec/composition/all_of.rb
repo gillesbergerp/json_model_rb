@@ -9,6 +9,20 @@ module JsonModel
         def initialize(*types, **options)
           super(:allOf, *types, **options)
         end
+
+        # @param [::Object] json
+        # @return [::Object]
+        def cast(json)
+          if json.nil?
+            return nil
+          end
+
+          @types.map do |type|
+            type.cast(json)
+          rescue StandardError
+            raise(Errors::TypeError, "Value #{json.inspect} cannot be cast to allOf type #{self}")
+          end
+        end
       end
     end
   end
