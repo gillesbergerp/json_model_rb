@@ -56,6 +56,26 @@ RSpec.describe(JsonModel::SchemaMeta) do
     end
   end
 
+  describe('.description') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::SchemaMeta)
+      end
+    end
+
+    it('is nil by default') do
+      expect(klass.description)
+        .to(be_nil)
+    end
+
+    it('can be changed') do
+      klass.description('This is a test description.')
+
+      expect(klass.description)
+        .to(eq('This is a test description.'))
+    end
+  end
+
   describe('.additional_properties') do
     let(:klass) do
       Class.new do

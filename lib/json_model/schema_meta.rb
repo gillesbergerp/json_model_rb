@@ -26,6 +26,16 @@ module JsonModel
     end
 
     class_methods do
+      # @param [String, nil] description
+      # @return [String, nil]
+      def description(description = nil)
+        if description
+          meta_attributes[:description] = description
+        else
+          meta_attributes[:description]
+        end
+      end
+
       # @param [String, nil] id
       # @return [String, nil]
       def schema_id(id = nil)
