@@ -13,7 +13,7 @@ module JsonModel
         # @param [ActiveModel::Validations] klass
         def register_validations(name, klass)
           super
-          klass.validates(name, numericality: { only_integer: true })
+          klass.validates(name, numericality: { only_integer: true }, allow_nil: true)
         end
       end
     end

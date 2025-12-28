@@ -33,7 +33,7 @@ module JsonModel
         super
 
         if @min_items || @max_items
-          klass.validates(name, length: { minimum: @min_items, maximum: @max_items }.compact)
+          klass.validates(name, length: { minimum: @min_items, maximum: @max_items }.compact, allow_nil: true)
         end
         if @unique_items
           register_uniqueness_validation(name, klass)
@@ -51,8 +51,8 @@ module JsonModel
       # @param [ActiveModel::Validations] klass
       def register_uniqueness_validation(name, klass)
         klass.validate do |record|
-          duplicates = record.send(name).group_by(&:itself).select { |_k, v| v.size > 1 }.keys
-          if duplicates.any?
+          duplicates = record.send(name)&.group_by(&:itself)&.select { |_k, v| v.size > 1 }&.keys
+          if !duplicates.nil? && duplicates.any?
             record.errors.add(:tags, :uniqueness, message: "contains duplicates: #{duplicates.join(', ')}")
           end
         end

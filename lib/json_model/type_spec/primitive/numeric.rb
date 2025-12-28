@@ -55,6 +55,7 @@ module JsonModel
                 greater_than_or_equal_to: @minimum,
                 less_than_or_equal_to: @maximum,
               }.compact,
+              allow_nil: true,
             )
           end
         end

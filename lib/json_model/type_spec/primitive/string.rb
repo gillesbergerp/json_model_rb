@@ -109,10 +109,10 @@ module JsonModel
           super
 
           if !@min_length.nil? || !@max_length.nil?
-            klass.validates(name, length: { minimum: @min_length, maximum: @max_length }.compact)
+            klass.validates(name, length: { minimum: @min_length, maximum: @max_length }.compact, allow_nil: true)
           end
           if @pattern
-            klass.validates(name, format: { with: @pattern })
+            klass.validates(name, format: { with: @pattern }, allow_nil: true)
           end
           if @format
             if JSON_SCHEMA_FORMATS.key?(@format)
@@ -141,7 +141,7 @@ module JsonModel
           klass.validate do |record|
             value = record.send(name)
 
-            if !format_validator.call(value)
+            if !value.nil? && !format_validator.call(value)
               record.errors.add(name, :invalid_format, message: "must be a valid #{@format}")
             end
           end
