@@ -27,6 +27,7 @@ RSpec.describe(JsonModel::TypeSpec::Composition) do
                   type: 'object',
                   properties: { foo: { type: 'string' } },
                   required: %i(foo),
+                  additionalProperties: false,
                 },
               ],
             },

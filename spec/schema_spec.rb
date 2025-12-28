@@ -72,7 +72,7 @@ RSpec.describe(JsonModel::Schema) do
 
     it('returns an empty schema') do
       expect(klass.as_schema)
-        .to(eq({ type: 'object' }))
+        .to(eq({ type: 'object', additionalProperties: false }))
     end
 
     it('includes the schema id') do
@@ -84,6 +84,7 @@ RSpec.describe(JsonModel::Schema) do
             {
               '$id': 'https://example.com/schemas/example.json',
               type: 'object',
+              additionalProperties: false,
             },
           ),
         )
@@ -116,6 +117,7 @@ RSpec.describe(JsonModel::Schema) do
                 foo: { type: 'string' },
               },
               required: %i(bam baz foo),
+              additionalProperties: false,
             },
           ),
         )
@@ -176,13 +178,16 @@ RSpec.describe(JsonModel::Schema) do
                   type: 'object',
                   properties: { foo: { type: 'string' } },
                   required: %i(foo),
+                  additionalProperties: false,
                 },
               },
+              additionalProperties: false,
               '$defs': {
                 Bar: {
                   type: 'object',
                   properties: { bar: { type: 'string' } },
                   required: %i(bar),
+                  additionalProperties: false,
                 },
               },
               required: %i(bam bar foo),
@@ -209,6 +214,7 @@ RSpec.describe(JsonModel::Schema) do
                 '$id': 'https://example.com/schemas/child.json',
                 '$ref': 'https://example.com/schemas/example.json',
                 type: 'object',
+                additionalProperties: false,
               },
             ),
           )

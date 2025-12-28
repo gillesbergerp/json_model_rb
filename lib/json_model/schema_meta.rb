@@ -23,6 +23,7 @@ module JsonModel
       end
 
       schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
+      additional_properties(false)
     end
 
     class_methods do

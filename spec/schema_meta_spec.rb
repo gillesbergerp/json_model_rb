@@ -83,9 +83,9 @@ RSpec.describe(JsonModel::SchemaMeta) do
       end
     end
 
-    it('is missing by default') do
+    it('is false by default') do
       expect(klass.meta_attributes)
-        .to(eq({}))
+        .to(eq({ additionalProperties: false }))
     end
 
     it('can be changed') do
