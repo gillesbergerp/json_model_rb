@@ -26,7 +26,7 @@ module JsonModel
       def register_validations(name, klass)
         super
 
-        klass.validates(name, inclusion: { in: @value })
+        klass.validates(name, inclusion: { in: @value }, allow_nil: true)
       end
     end
   end

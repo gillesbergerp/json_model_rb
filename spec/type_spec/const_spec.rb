@@ -9,7 +9,7 @@ RSpec.describe(JsonModel::TypeSpec::Const) do
         .to(
           eq(
             {
-              const: 'a'
+              const: 'a',
             },
           ),
         )
