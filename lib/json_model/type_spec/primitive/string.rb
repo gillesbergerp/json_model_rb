@@ -76,7 +76,6 @@ module JsonModel
           relative_json_pointer: ->(v) { v.match?(%r{\A(?:0|[1-9][0-9]*)(?:#|(?:/(?:[^~]|~[01])*))*\z}) },
         }.freeze
 
-
         # @param [Integer, nil] min_length
         # @param [Integer, nil] max_length
         # @param [Regexp, nil] pattern
