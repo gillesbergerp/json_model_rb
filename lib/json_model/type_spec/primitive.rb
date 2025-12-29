@@ -25,7 +25,7 @@ module JsonModel
         elsif @types.any? { |type| json.is_a?(type) }
           json
         else
-          raise(Errors::TypeError, "Expected one of #{@type.join('/')}, got #{json.class} (#{json.inspect})")
+          raise(Errors::TypeError, "Expected one of #{@types.join('/')}, got #{json.class} (#{json.inspect})")
         end
       end
     end

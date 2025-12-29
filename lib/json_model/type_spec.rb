@@ -2,6 +2,7 @@
 
 require_relative('type_spec/array')
 require_relative('type_spec/composition')
+require_relative('type_spec/const')
 require_relative('type_spec/enum')
 require_relative('type_spec/object')
 require_relative('type_spec/primitive')
@@ -39,7 +40,7 @@ module JsonModel
           type
         when Class
           resolve_type_from_class(type, **options)
-        when T::AllOf, T::AnyOf, T::Boolean, T::OneOf, T::Array, T::Enum
+        when T::AllOf, T::AnyOf, T::Boolean, T::OneOf, T::Array, T::Enum, T::Const
           type.to_type_spec(**options)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
