@@ -195,6 +195,14 @@ RSpec.describe(JsonModel::Schema) do
       let(:child) do
         Class.new(klass) do
           schema_id('https://example.com/schemas/child.json')
+          property(:baz, type: String)
+        end
+      end
+      let(:second_child) do
+        Class.new(klass) do
+          schema_id('https://example.com/schemas/second-child.json')
+          title('SecondChild')
+          property(:bar, type: String)
         end
       end
 
@@ -209,9 +217,33 @@ RSpec.describe(JsonModel::Schema) do
                 '$id': 'https://example.com/schemas/child.json',
                 '$ref': 'https://example.com/schemas/example.json',
                 type: 'object',
+                properties: { baz: { type: 'string' } },
+                required: %i(baz),
               },
             ),
           )
+
+        expect(second_child.as_schema)
+          .to(
+            eq(
+              {
+                '$id': 'https://example.com/schemas/second-child.json',
+                '$ref': 'https://example.com/schemas/example.json',
+                title: 'SecondChild',
+                type: 'object',
+                properties: { bar: { type: 'string' } },
+                required: %i(bar),
+              },
+            ),
+          )
+
+        instance = child.new(foo: 'foo', baz: 'baz')
+        expect(instance.foo).to(eq('foo'))
+        expect(instance.baz).to(eq('baz'))
+
+        second_instance = second_child.new(foo: 'foo', bar: 'bar')
+        expect(second_instance.foo).to(eq('foo'))
+        expect(second_instance.bar).to(eq('bar'))
       end
     end
   end

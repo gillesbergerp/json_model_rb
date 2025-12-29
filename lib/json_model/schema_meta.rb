@@ -13,12 +13,11 @@ module JsonModel
     }.freeze
 
     included do
-      class_attribute(:meta_attributes, instance_writer: false, default: {})
-      class_attribute(:ref_schema, instance_writer: false)
-
       # @param [Class] subclass
       def self.inherited(subclass)
         super
+        subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
+        subclass.additional_properties(false)
         subclass.meta_attributes[:$ref] = schema_id
       end
 
@@ -26,6 +25,11 @@ module JsonModel
     end
 
     class_methods do
+      # @return [Hash]
+      def meta_attributes
+        @meta_attributes ||= {}
+      end
+
       # @param [String, nil] description
       # @return [String, nil]
       def description(description = nil)
