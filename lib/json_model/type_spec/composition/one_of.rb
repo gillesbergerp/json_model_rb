@@ -11,7 +11,7 @@ module JsonModel
         end
 
         # @param [::Object] json
-        # @return [::Object]
+        # @return [::Object, nil]
         def cast(json)
           if json.nil?
             return nil

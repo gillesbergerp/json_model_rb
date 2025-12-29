@@ -46,9 +46,13 @@ module JsonModel
       end
 
       # @param [::Object] json
-      # @return [::Object]
+      # @return [::Object, nil]
       def cast(json)
-        json.map { |item| @type.cast(item) }
+        if json.is_a?(Enumerable)
+          json.map { |item| @type.cast(item) }
+        else
+          raise(Errors::TypeError, "Expected an array, got #{json.class} (#{json.inspect})")
+        end
       end
 
       private

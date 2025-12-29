@@ -16,7 +16,7 @@ module JsonModel
       # @param [Class] subclass
       def self.inherited(subclass)
         super
-        subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
+        subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(subclass))
         subclass.additional_properties(false)
         subclass.meta_attributes[:$ref] = schema_id
       end

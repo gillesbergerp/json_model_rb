@@ -18,14 +18,14 @@ module JsonModel
       end
 
       # @param [::Object] json
-      # @return [::Object]
+      # @return [::Object, nil]
       def cast(json)
         if json.nil?
           nil
         elsif @types.any? { |type| json.is_a?(type) }
           json
         else
-          raise(Errors::TypeError, "Expected #{@type}, got #{json.class} (#{json.inspect})")
+          raise(Errors::TypeError, "Expected one of #{@type.join('/')}, got #{json.class} (#{json.inspect})")
         end
       end
     end
