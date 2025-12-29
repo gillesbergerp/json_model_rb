@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.description = 'Define JSON schemas as Ruby modules using a DSL'
   spec.authors = ['Paul Gillesberger']
   spec.email = ['paulgillesberger@live.com']
-  spec.files = Dir['lib/**/*.rb'] + Dir['spec/**/*'] + %w(README.md LICENSE.txt)
+  spec.files = Dir['lib/**/*.rb'] + Dir['spec/**/*'] + %w(README.md LICENSE)
   spec.homepage = 'https://github.com/gillesbergerp/json_model'
   spec.license = 'MIT'
 
@@ -20,5 +20,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('rubocop-rspec', '~> 3.8')
   spec.add_dependency('activemodel', '>= 6.0')
   spec.add_dependency('activesupport', '>= 6.0')
+
+  spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end

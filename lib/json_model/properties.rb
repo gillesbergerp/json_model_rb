@@ -7,12 +7,19 @@ module JsonModel
     included do
       extend(ActiveSupport::DescendantsTracker)
       include(ActiveModel::Validations)
+    end
 
-      class_attribute(:attributes, instance_writer: false, default: {})
-      class_attribute(:properties, instance_writer: false, default: {})
+    # @return [Hash]
+    def attributes
+      @attributes ||= {}
     end
 
     class_methods do
+      # @return [Hash]
+      def properties
+        @properties ||= {}
+      end
+
       # @param [Symbol] name
       # @param [Object, Class] type
       # @param [Hash] options
