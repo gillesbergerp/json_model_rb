@@ -44,7 +44,7 @@ RSpec.describe(JsonModel::Schema) do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:foo, type: String, min_length: 3)
+        property(:foo, type: T::String[min_length: 3])
       end
     end
 

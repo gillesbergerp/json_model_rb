@@ -8,8 +8,8 @@ module T
     end
 
     # @return [JsonModel::TypeSpec::Enum]
-    def to_type_spec(**options)
-      JsonModel::TypeSpec::Enum.new(*@values, **options)
+    def to_type_spec
+      JsonModel::TypeSpec::Enum.new(*@values)
     end
 
     class << self

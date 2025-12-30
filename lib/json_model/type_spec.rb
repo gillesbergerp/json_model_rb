@@ -32,39 +32,39 @@ module JsonModel
 
     class << self
       # @param [Object, Class] type
-      # @param [Hash] options
       # @return [TypeSpec]
-      def resolve(type, **options)
+      def resolve(type)
         case type
         when TypeSpec
           type
         when Class
-          resolve_type_from_class(type, **options)
-        when T::AllOf, T::AnyOf, T::Boolean, T::OneOf, T::Array, T::Enum, T::Const
-          type.to_type_spec(**options)
+          resolve_type_from_class(type)
         else
-          raise(ArgumentError, "Unsupported type: #{type}")
+          if type.respond_to?(:to_type_spec)
+            type.to_type_spec
+          else
+            raise(ArgumentError, "Unsupported type: #{type}")
+          end
         end
       end
 
       private
 
       # @param [Object, Class] type
-      # @param [Hash] options
       # @return [TypeSpec]
-      def resolve_type_from_class(type, **options)
+      def resolve_type_from_class(type)
         if type == String
-          Primitive::String.new(**options)
+          Primitive::String.new
         elsif type == Integer
-          Primitive::Integer.new(**options)
+          Primitive::Integer.new
         elsif type == Float
-          Primitive::Number.new(**options)
+          Primitive::Number.new
         elsif [TrueClass, FalseClass].include?(type)
-          Primitive::Boolean.new(**options)
+          Primitive::Boolean.new
         elsif type == NilClass
-          Primitive::Null.new(**options)
+          Primitive::Null.new
         elsif type < Schema
-          TypeSpec::Object.new(type, **options)
+          TypeSpec::Object.new(type)
         else
           raise(ArgumentError, "Unsupported type: #{type}")
         end

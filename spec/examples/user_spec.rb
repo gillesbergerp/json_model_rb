@@ -14,7 +14,7 @@ RSpec.describe('User schema') do
       property(:street, type: String)
       property(:city, type: String)
       property(:state, type: String, optional: true)
-      property(:postal_code, type: String, pattern: /\A\d{5}(-\d{4})?\z/, optional: true)
+      property(:postal_code, type: T::String[pattern: /\A\d{5}(-\d{4})?\z/], optional: true)
       property(:country, type: String, default: 'USA')
     end
 
@@ -28,8 +28,8 @@ RSpec.describe('User schema') do
       end
 
       property(:name, type: String)
-      property(:email, type: String, format: :email)
-      property(:age, type: Integer, minimum: 0, maximum: 120, optional: true)
+      property(:email, type: T::String[format: :email])
+      property(:age, type: T::Integer[minimum: 0, maximum: 120], optional: true)
       property(:active, type: T::Boolean, default: true, optional: true)
       property(:addresses, type: T::Array[Address], ref_mode: JsonModel::RefMode::LOCAL)
       property(:tags, type: T::Array[String], optional: true)

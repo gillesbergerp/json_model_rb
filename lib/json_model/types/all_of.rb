@@ -3,23 +3,26 @@
 module T
   class AllOf
     # @param [Array<Class>] types
-    def initialize(*types)
+    # @param [Hash] options
+    def initialize(*types, **options)
       @types = types
+      @options = options
     end
 
     # @return [JsonModel::TypeSpec::Composition::AllOf]
-    def to_type_spec(**options)
+    def to_type_spec
       JsonModel::TypeSpec::Composition::AllOf.new(
         *@types.map { |type| JsonModel::TypeSpec.resolve(type) },
-        **options,
+        **@options,
       )
     end
 
     class << self
       # @param [Array] types
+      # @param [Hash] options
       # @return [AllOf]
-      def [](*types)
-        AllOf.new(*types)
+      def [](*types, **options)
+        AllOf.new(*types, **options)
       end
     end
   end

@@ -17,7 +17,7 @@ module JsonModel
             return nil
           end
 
-          types = @types.select do |type|
+          types = types_for(json).select do |type|
             type.cast(json)
           rescue StandardError
             false

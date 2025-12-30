@@ -3,6 +3,8 @@
 module JsonModel
   class TypeSpec
     class Object < TypeSpec
+      attr_reader(:type)
+
       # @param [Schema] type
       def initialize(type)
         super()
@@ -12,18 +14,18 @@ module JsonModel
       # @param [Hash] options
       # @return [Hash]
       def as_schema(**options)
-        @type.as_schema(**options)
+        type.as_schema(**options)
       end
 
       # @return [Array<TypeSpec>]
       def referenced_schemas
-        [@type]
+        [type]
       end
 
       # @param [::Object] json
       # @return [::Object, nil]
       def cast(json)
-        @type.from_json(**json)
+        type.from_json(**json)
       end
     end
   end
