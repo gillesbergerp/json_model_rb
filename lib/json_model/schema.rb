@@ -29,12 +29,26 @@ module JsonModel
     def assign_attribute(name, value)
       if respond_to?("#{name}=")
         send("#{name}=", value)
-      elsif !self.class.additional_properties && JsonModel.config.validate_after_instantiation
-        raise(Errors::UnknownAttributeError.new(self.class, name))
+      else
+        self.class.raise_unknown_attribute_error(name)
       end
     end
 
     class_methods do
+      # @param [::Object] json
+      # @return [::Object, nil]
+      def from_json(json)
+        attributes = json.transform_keys { |key| invert_alias(key) || raise_unknown_attribute_error(key) }
+        new(attributes)
+      end
+
+      # @param [Symbol] name
+      def raise_unknown_attribute_error(name)
+        if !additional_properties && JsonModel.config.validate_after_instantiation
+          raise(Errors::UnknownAttributeError.new(self, name))
+        end
+      end
+
       # @param [Symbol] ref_mode
       # @param [Hash] _options
       # @return [Hash]

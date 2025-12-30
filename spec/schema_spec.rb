@@ -63,6 +63,34 @@ RSpec.describe(JsonModel::Schema) do
     end
   end
 
+  describe('.from_json') do
+    before do
+      stub_const(
+        'Foo',
+        Class.new do
+          include(JsonModel::Schema)
+
+          property(:foo_bar, type: String, as: :fooBar)
+        end,
+      )
+
+      stub_const(
+        'Bar',
+        Class.new(Foo),
+      )
+    end
+
+    it('parent can be instantiated from json') do
+      instance = Foo.from_json({ fooBar: 'baz' })
+      expect(instance.foo_bar).to(eq('baz'))
+    end
+
+    it('child can be instantiated from json') do
+      instance = Bar.from_json({ fooBar: 'baz' })
+      expect(instance.foo_bar).to(eq('baz'))
+    end
+  end
+
   describe('.as_schema') do
     let(:klass) do
       Class.new do
