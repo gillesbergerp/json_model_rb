@@ -623,7 +623,7 @@ class PaymentMethod
   title "Payment Method"
   description "Must specify exactly one payment method"
 
-  property :payment, type: T::OneOf[CreditCardPayment, PayPalPayment, BankTransferPayment]
+  property :payment, type: T::OneOf[CreditCardPayment, PayPalPayment, BankTransferPayment], discriminator: :payment_type
 end
 
 # Generate the JSON Schema

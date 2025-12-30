@@ -3,6 +3,8 @@
 module JsonModel
   class TypeSpec
     class Enum < TypeSpec
+      attr_reader(:values)
+
       # @param [Array<Object, nil>] values
       def initialize(*values)
         super()
@@ -17,7 +19,7 @@ module JsonModel
       # @return [Hash]
       def as_schema(**_options)
         {
-          enum: @values,
+          enum: values,
         }.compact
       end
 
@@ -26,7 +28,7 @@ module JsonModel
       def register_validations(name, klass)
         super
 
-        klass.validates(name, inclusion: { in: @values }, allow_nil: true)
+        klass.validates(name, inclusion: { in: values }, allow_nil: true)
       end
     end
   end

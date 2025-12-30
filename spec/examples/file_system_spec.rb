@@ -9,7 +9,7 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Enum['disk'])
+        property(:type, type: T::Const['disk'])
         property(:device, type: String, pattern: %r{\A/dev/[^/]+(/[^/]+)*\z})
       end,
     )
@@ -19,7 +19,7 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Enum['disk'])
+        property(:type, type: T::Enum['diskUUID', 'diskuuid'])
         property(
           :label,
           type: String,
@@ -33,7 +33,7 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Enum['nfs'])
+        property(:type, type: T::Const['nfs'])
         property(:remote_path, type: String, pattern: %r{\A(/[^/]+)+\z}, as: :remotePath)
         property(:server, type: String, format: :ipv4)
       end,
@@ -44,7 +44,7 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Enum['tmpfs'])
+        property(:type, type: T::Const['tmpfs'])
         property(:size_in_mb, type: Integer, minimum: 16, maximum: 512, as: :sizeInMB)
       end,
     )
@@ -55,7 +55,12 @@ RSpec.describe('File system schema') do
         include(JsonModel::Schema)
 
         description('JSON Schema for an fstab entry')
-        property(:storage, type: T::OneOf[DiskDevice, DiskUuid, Nfs, Tmpfs], ref_mode: JsonModel::RefMode::LOCAL)
+        property(
+          :storage,
+          type: T::OneOf[DiskDevice, DiskUuid, Nfs, Tmpfs],
+          ref_mode: JsonModel::RefMode::LOCAL,
+          discriminator: :type,
+        )
         property(:fstype, type: T::Enum['ext3', 'ext4', 'btrfs'], optional: true)
         property(:options, type: T::Array[String], min_items: 1, unique_items: true, optional: true)
         property(:readonly, type: T::Boolean, optional: true)
@@ -100,7 +105,7 @@ RSpec.describe('File system schema') do
               DiskDevice: {
                 properties: {
                   type: {
-                    enum: ['disk'],
+                    const: 'disk',
                   },
                   device: {
                     type: 'string',
@@ -113,7 +118,7 @@ RSpec.describe('File system schema') do
               },
               DiskUuid: {
                 properties: {
-                  type: { enum: ['disk'] },
+                  type: { enum: %w(diskUUID diskuuid) },
                   label: {
                     type: 'string',
                     pattern: '\\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\\z',
@@ -125,7 +130,7 @@ RSpec.describe('File system schema') do
               },
               Nfs: {
                 properties: {
-                  type: { enum: ['nfs'] },
+                  type: { const: 'nfs' },
                   remotePath: {
                     type: 'string',
                     pattern: '\\A(/[^/]+)+\\z',
@@ -141,7 +146,7 @@ RSpec.describe('File system schema') do
               },
               Tmpfs: {
                 properties: {
-                  type: { enum: ['tmpfs'] },
+                  type: { const: 'tmpfs' },
                   sizeInMB: { type: 'integer', minimum: 16, maximum: 512 },
                 },
                 required: %i(sizeInMB type),

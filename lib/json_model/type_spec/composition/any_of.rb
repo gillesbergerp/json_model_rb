@@ -17,7 +17,7 @@ module JsonModel
             return nil
           end
 
-          type = @types.detect do |type|
+          type = types_for(json).detect do |type|
             type.cast(json)
           rescue StandardError
             false

@@ -17,7 +17,7 @@ module JsonModel
             return nil
           end
 
-          @types.map do |type|
+          types_for(json).map do |type|
             type.cast(json)
           rescue StandardError
             raise(Errors::TypeError, "Value #{json.inspect} cannot be cast to allOf type #{self}")
