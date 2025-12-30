@@ -23,7 +23,7 @@ module JsonModel
       # @param [::Object] json
       # @return [::Object, nil]
       def cast(json)
-        @type.new(**json)
+        @type.from_json(**json)
       end
     end
   end
