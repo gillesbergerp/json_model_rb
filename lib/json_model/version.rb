@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module JsonModel
-  VERSION = '0.1.10'
+  VERSION = '0.1.12'
 end

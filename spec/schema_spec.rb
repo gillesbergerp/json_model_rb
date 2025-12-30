@@ -63,6 +63,21 @@ RSpec.describe(JsonModel::Schema) do
     end
   end
 
+  describe('.from_json') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::Schema)
+
+        property(:foo_bar, type: String, as: :fooBar)
+      end
+    end
+
+    it('can be instantiated from json') do
+      instance = klass.from_json({ fooBar: 'baz' })
+      expect(instance.foo_bar).to(eq('baz'))
+    end
+  end
+
   describe('.as_schema') do
     let(:klass) do
       Class.new do
