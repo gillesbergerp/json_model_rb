@@ -3,6 +3,8 @@
 module JsonModel
   class TypeSpec
     class Const < TypeSpec
+      attr_reader(:value)
+
       # @param [String] value
       def initialize(value)
         super()
@@ -17,7 +19,7 @@ module JsonModel
       # @return [Hash]
       def as_schema(**_options)
         {
-          const: @value,
+          const: value,
         }.compact
       end
 
@@ -26,7 +28,7 @@ module JsonModel
       def register_validations(name, klass)
         super
 
-        klass.validates(name, inclusion: { in: @value }, allow_nil: true)
+        klass.validates(name, inclusion: { in: value }, allow_nil: true)
       end
     end
   end

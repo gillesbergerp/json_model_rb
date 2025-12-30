@@ -99,7 +99,7 @@ class Product
   # Properties
   property :id, type: String
   property :name, type: String
-  property :price, type: Float, minimum: 0
+  property :price, type: T::Float[minimum: 0]
   property :available, type: T::Boolean, default: true, optional: true
 end
 ```
@@ -124,30 +124,28 @@ class StringExample
   property :simple_string, type: String
 
   # String with length constraints
-  property :username, type: String, 
-    min_length: 3,
-    max_length: 20
+  property :username, type: T::String[min_length: 3, max_length: 20]
 
   # String with pattern (regex)
-  property :product_code, type: String, pattern: /\A[A-Z]{3}-\d{4}\z/
+  property :product_code, type: T::String[pattern: /\A[A-Z]{3}-\d{4}\z/]
 
   # String with format
-  property :email, type: String, format: :email
-  property :uri, type: String, format: :uri
-  property :hostname, type: String, format: :hostname
-  property :ipv4, type: String, format: :ipv4
-  property :ipv6, type: String, format: :ipv6
-  property :uuid, type: String, format: :uuid
-  property :date, type: String, format: :date
-  property :time, type: String, format: :time
-  property :datetime, type: String, format: :date_time
-  property :duration, type: String, format: :duration
+  property :email, type: T::String[format: :email]
+  property :uri, type: T::String[format: :uri]
+  property :hostname, type: T::String[format: :hostname]
+  property :ipv4, type: T::String[format: :ipv4]
+  property :ipv6, type: T::String[format: :ipv6]
+  property :uuid, type: T::String[format: :uuid]
+  property :date, type: T::String[format: :date]
+  property :time, type: T::String[format: :time]
+  property :datetime, type: T::String[format: :date_time]
+  property :duration, type: T::String[format: :duration]
   
   # String with enum
-  property :status, type: String, enum: ["draft", "published", "archived"]
+  property :status, T::Enum["draft", "published", "archived"]
   
   # String with const
-  property :api_version, type: String, const: "v1"
+  property :api_version, T::Const["v1"]
   
   # Optional string
   property :nickname, type: String, optional: true
@@ -244,19 +242,19 @@ class NumericExample
   property :count, type: Integer
 
   # Integer with range
-  property :port, type: Integer, minimum: 1024, maximum: 65535
+  property :port, type: T::Integer[minimum: 1024, maximum: 65535]
 
   # Integer with exclusive bounds
-  property :positive_int, type: Integer, exclusive_minimum: 0
+  property :positive_int, type: T::Integer[exclusive_minimum: 0]
 
   # Number (float/double)
-  property :price, type: Float, minimum: 0
+  property :price, type: T::Number[minimum: 0]
 
   # Number with multiple_of
-  property :quantity, type: Integer, multiple_of: 10
+  property :quantity, type: T::Integer[multiple_of: 10]
 
   # Number with precision
-  property :temperature, type: Float, minimum: -273.15, maximum: 1000.0
+  property :temperature, type: T::Number[minimum: -273.15, maximum: 1000.0]
   
   # Optional number
   property :discount, type: Float, optional: true
@@ -361,7 +359,7 @@ class ArrayExample
   property :tags, type: T::Array[String]
 
   # Array with constraints
-  property :numbers, type: T::Array[Integer], min_items: 1, max_items: 10, unique_items: true
+  property :numbers, type: T::Array[Integer, min_items: 1, max_items: 10, unique_items: true]
 end
 
 # Generate the JSON Schema
@@ -410,15 +408,15 @@ class PersonBase
   include JsonModel::Schema
 
   property :name, type: String
-  property :age, type: Integer, minimum: 0, optional: true
+  property :age, type: T::Integer[minimum: 0], optional: true
 end
 
 class EmployeeDetails
   include JsonModel::Schema
 
-  property :employee_id, type: String, pattern: /\AE-\d{4}\z/
+  property :employee_id, type: T::String[pattern: /\AE-\d{4}\z/]
   property :department, type: String
-  property :salary, type: Float, minimum: 0, optional: true
+  property :salary, type: T::Number[minimum: 0], optional: true
 end
 
 class Employee
@@ -504,7 +502,7 @@ end
 class PhoneContact
   include JsonModel::Schema
 
-  property :phone, type: String, pattern: /\A\+?[1-9]\\d{1,14}\z/
+  property :phone, type: T::String[pattern: /\A\+?[1-9]\\d{1,14}\z/]
 end
 
 class AddressContact
@@ -596,24 +594,24 @@ Use `T::OneOf` when a value must validate against exactly one schema (exclusive 
 class CreditCardPayment
   include JsonModel::Schema
 
-  property :payment_type, type: String, const: "credit_card"
-  property :card_number, type: String, pattern: /\A\d{16}\z/
-  property :cvv, type: String, pattern: /\A\d{3,4}\z/
-  property :expiry, type: String, pattern: /\A\d{2}\/\d{2}\z/
+  property :payment_type, T::Const["credit_card"]
+  property :card_number, type: T::String[pattern: /\A\d{16}\z/]
+  property :cvv, type: T::String[pattern: /\A\d{3,4}\z/]
+  property :expiry, type: T::String[pattern: /\A\d{2}\/\d{2}\z/]
 end
 
 class PayPalPayment
   include JsonModel::Schema
 
-  property :payment_type, type: String, const: "paypal"
-  property :paypal_email, type: String, format: :email
+  property :payment_type, T::Const["paypal"]
+  property :paypal_email, type: T::String[format: :email]
 end
 
 class BankTransferPayment
   include JsonModel::Schema
 
-  property :payment_type, type: String, const: "bank_transfer"
-  property :iban, type: String, pattern: "^[A-Z]{2}\\d{2}[A-Z0-9]+$"
+  property :payment_type, type: T::Const["bank_transfer"]
+  property :iban, type: T::String[pattern: "^[A-Z]{2}\\d{2}[A-Z0-9]+$"]
   property :swift, type: String, optional: true
 end
 
@@ -623,7 +621,7 @@ class PaymentMethod
   title "Payment Method"
   description "Must specify exactly one payment method"
 
-  property :payment, type: T::OneOf[CreditCardPayment, PayPalPayment, BankTransferPayment]
+  property :payment, type: T::OneOf[CreditCardPayment, PayPalPayment, BankTransferPayment], discriminator: :payment_type
 end
 
 # Generate the JSON Schema

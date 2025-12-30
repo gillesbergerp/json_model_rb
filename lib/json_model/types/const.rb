@@ -8,8 +8,8 @@ module T
     end
 
     # @return [JsonModel::TypeSpec::Const]
-    def to_type_spec(**options)
-      JsonModel::TypeSpec::Const.new(*@value, **options)
+    def to_type_spec
+      JsonModel::TypeSpec::Const.new(*@value)
     end
 
     class << self

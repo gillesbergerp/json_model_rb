@@ -37,10 +37,9 @@ module JsonModel
       # @param [Object, Class] type
       # @param [Hash] options
       def property(name, type:, **options)
-        property_options = options.slice(:default, :optional, :ref_mode, :as)
-        resolved_type = TypeSpec.resolve(type, **options.except(:default, :optional, :ref_mode, :as))
-        add_property(name, type: resolved_type, **property_options)
-        descendants.each { |subclass| subclass.add_property(name, type: resolved_type, **property_options) }
+        resolved_type = TypeSpec.resolve(type)
+        add_property(name, type: resolved_type, **options)
+        descendants.each { |subclass| subclass.add_property(name, type: resolved_type, **options) }
       end
 
       protected
