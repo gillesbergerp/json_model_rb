@@ -35,6 +35,13 @@ module JsonModel
     end
 
     class_methods do
+      # @param [::Object] json
+      # @return [::Object, nil]
+      def from_json(json)
+        attributes = json.transform_keys { |key| aliased_properties[key]&.name || key }
+        new(attributes)
+      end
+
       # @param [Symbol] ref_mode
       # @param [Hash] _options
       # @return [Hash]

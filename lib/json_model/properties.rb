@@ -20,6 +20,11 @@ module JsonModel
         @properties ||= {}
       end
 
+      # @return [Hash]
+      def aliased_properties
+        @aliased_properties ||= {}
+      end
+
       # @param [Symbol] name
       # @param [Object, Class] type
       # @param [Hash] options
@@ -38,6 +43,7 @@ module JsonModel
       def add_property(name, type:, **options)
         property = Property.new(name, type: type, **options)
         properties[name] = property
+        aliased_properties[property.alias] = property
         define_accessors(property)
         define_validations(property)
       end
