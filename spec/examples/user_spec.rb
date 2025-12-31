@@ -33,6 +33,7 @@ RSpec.describe('User schema') do
       property(:active, type: T::Boolean, default: true, optional: true)
       property(:addresses, type: T::Array[Address], ref_mode: JsonModel::RefMode::LOCAL)
       property(:tags, type: T::Array[String], optional: true)
+      property(:birthday, type: Date, optional: true)
     end
 
     stub_const('User', user_class)
@@ -54,6 +55,7 @@ RSpec.describe('User schema') do
                 items: { '$ref': '#/$defs/Address' },
               },
               tags: { type: 'array', items: { type: 'string' } },
+              birthday: { type: 'string', format: 'date' },
             },
             additionalProperties: false,
             required: %i(addresses email name),
@@ -77,7 +79,12 @@ RSpec.describe('User schema') do
   end
 
   it('can instantiate a model') do
-    user = User.new(name: 'Foo', email: 'foo@example.com', addresses: [{ street: '123 Main St', city: 'Anytown' }])
+    user = User.new(
+      name: 'Foo',
+      email: 'foo@example.com',
+      addresses: [{ street: '123 Main St', city: 'Anytown' }],
+      birthday: '2000-01-01',
+    )
 
     expect(user.name).to(eq('Foo'))
     expect(user.email).to(eq('foo@example.com'))
@@ -88,5 +95,6 @@ RSpec.describe('User schema') do
     expect(user.addresses.first.postal_code).to(be_nil)
     expect(user.addresses.first.state).to(be_nil)
     expect(user.addresses.first.city).to(eq('Anytown'))
+    expect(user.birthday).to(eq(Date.new(2000, 1, 1)))
   end
 end

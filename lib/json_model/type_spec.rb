@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative('type_spec/array')
+require_relative('type_spec/castable')
 require_relative('type_spec/composition')
 require_relative('type_spec/const')
 require_relative('type_spec/enum')
@@ -9,6 +10,20 @@ require_relative('type_spec/primitive')
 
 module JsonModel
   class TypeSpec
+    TYPE_MAP = {
+      Date => Castable.new(format: 'date') { |v| ::DateTime.iso8601(v) },
+      DateTime => Castable.new(format: 'date-time') { |v| ::DateTime.iso8601(v) },
+      FalseClass => Primitive::Boolean.new,
+      Float => Primitive::Number.new,
+      Integer => Primitive::Integer.new,
+      NilClass => Primitive::Null.new,
+      Regexp => Castable.new(format: 'regex') { |v| Regexp.new(v) },
+      String => Primitive::String.new,
+      Time => Castable.new(format: 'time') { |v| ::Time.iso8601(v) },
+      TrueClass => Primitive::Boolean.new,
+      URI => Castable.new(format: 'uri') { |v| URI.parse(v) },
+    }.freeze
+
     # @param [Hash] options
     # @return [Hash]
     def as_schema(**options)
@@ -53,16 +68,8 @@ module JsonModel
       # @param [Object, Class] type
       # @return [TypeSpec]
       def resolve_type_from_class(type)
-        if type == String
-          Primitive::String.new
-        elsif type == Integer
-          Primitive::Integer.new
-        elsif type == Float
-          Primitive::Number.new
-        elsif [TrueClass, FalseClass].include?(type)
-          Primitive::Boolean.new
-        elsif type == NilClass
-          Primitive::Null.new
+        if TYPE_MAP.key?(type)
+          TYPE_MAP[type]
         elsif type < Schema
           TypeSpec::Object.new(type)
         else

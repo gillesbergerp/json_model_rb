@@ -62,7 +62,7 @@ module JsonModel
             end
           },
           uuid: lambda { |v|
-            SecureRandom(v.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/i))
+            v.match?(/\A[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/i)
           },
           regex: lambda { |v|
             begin
@@ -79,7 +79,7 @@ module JsonModel
         # @param [Integer, nil] min_length
         # @param [Integer, nil] max_length
         # @param [Regexp, nil] pattern
-        # @param [String, nil] format
+        # @param [Symbol, nil] format
         def initialize(min_length: nil, max_length: nil, pattern: nil, format: nil)
           super(types: [::String], schema_type: 'string')
 
@@ -115,7 +115,6 @@ module JsonModel
           end
           if @format
             if JSON_SCHEMA_FORMATS.key?(@format)
-
               register_format_validation(klass, name)
             else
               raise(ArgumentError, "Invalid format: #{@format}")
