@@ -21,6 +21,7 @@ module JsonModel
       end
 
       schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
+      schema_version(JsonModel.config.schema_version)
     end
 
     class_methods do
