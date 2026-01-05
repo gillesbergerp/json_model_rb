@@ -34,6 +34,8 @@ RSpec.describe('User schema') do
       property(:addresses, type: T::Array[Address], ref_mode: JsonModel::RefMode::LOCAL)
       property(:tags, type: T::Array[String], optional: true)
       property(:birthday, type: Date, optional: true)
+      property(:websites, type: T::Array[URI], optional: true)
+      property(:height, type: Float, optional: true)
     end
 
     stub_const('User', user_class)
@@ -56,6 +58,8 @@ RSpec.describe('User schema') do
               },
               tags: { type: 'array', items: { type: 'string' } },
               birthday: { type: 'string', format: 'date' },
+              websites: { type: 'array', items: { type: 'string', format: 'uri' } },
+              height: { type: 'number' },
             },
             required: %i(addresses email name),
             '$defs': {

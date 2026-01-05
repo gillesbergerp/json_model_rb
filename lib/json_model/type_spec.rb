@@ -49,17 +49,18 @@ module JsonModel
       # @param [Object, Class] type
       # @return [TypeSpec]
       def resolve(type)
-        case type
-        when TypeSpec
-          type
-        when Class
-          resolve_type_from_class(type)
+        if type.is_a?(TypeSpec)
+          return type
+        end
+
+        if TYPE_MAP.key?(type)
+          TYPE_MAP[type]
+        elsif type.respond_to?(:to_type_spec)
+          type.to_type_spec
+        elsif type.is_a?(Class) && type < Schema
+          TypeSpec::Object.new(type)
         else
-          if type.respond_to?(:to_type_spec)
-            type.to_type_spec
-          else
-            raise(ArgumentError, "Unsupported type: #{type}")
-          end
+          raise(ArgumentError, "Unsupported type: #{type}")
         end
       end
 
