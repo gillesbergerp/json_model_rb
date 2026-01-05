@@ -115,4 +115,24 @@ RSpec.describe(JsonModel::SchemaMeta) do
         .to(eq({ additionalProperties: true }))
     end
   end
+
+  describe('.additional_properties') do
+    let(:klass) do
+      Class.new do
+        include(JsonModel::SchemaMeta)
+      end
+    end
+
+    it('is missing by default') do
+      expect(klass.meta_attributes)
+        .to(eq({}))
+    end
+
+    it('can be changed') do
+      klass.unevaluated_properties(true)
+
+      expect(klass.meta_attributes)
+        .to(eq({ unevaluatedProperties: true }))
+    end
+  end
 end

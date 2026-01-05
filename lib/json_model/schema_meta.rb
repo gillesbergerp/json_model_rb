@@ -17,7 +17,6 @@ module JsonModel
       def self.inherited(subclass)
         super
         subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(subclass))
-        subclass.additional_properties(false)
         subclass.meta_attributes[:$ref] = schema_id
       end
 
@@ -67,6 +66,16 @@ module JsonModel
           meta_attributes[:additionalProperties] || false
         else
           meta_attributes[:additionalProperties] = value
+        end
+      end
+
+      # @param [Boolean, nil] value
+      # @return [Boolean]
+      def unevaluated_properties(value = nil)
+        if value.nil?
+          meta_attributes[:unevaluatedProperties] || false
+        else
+          meta_attributes[:unevaluatedProperties] = value
         end
       end
 

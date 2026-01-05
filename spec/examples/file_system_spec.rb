@@ -98,7 +98,6 @@ RSpec.describe('File system schema') do
                 type: 'boolean',
               },
             },
-            additionalProperties: false,
             '$defs': {
               DiskDevice: {
                 properties: {
@@ -111,7 +110,6 @@ RSpec.describe('File system schema') do
                   },
                 },
                 required: %i(device type),
-                additionalProperties: false,
                 type: 'object',
               },
               DiskUuid: {
@@ -123,7 +121,6 @@ RSpec.describe('File system schema') do
                   },
                 },
                 required: %i(label type),
-                additionalProperties: false,
                 type: 'object',
               },
               Nfs: {
@@ -139,7 +136,6 @@ RSpec.describe('File system schema') do
                   },
                 },
                 required: %i(remotePath server type),
-                additionalProperties: false,
                 type: 'object',
               },
               Tmpfs: {
@@ -148,7 +144,6 @@ RSpec.describe('File system schema') do
                   sizeInMB: { type: 'integer', minimum: 16, maximum: 512 },
                 },
                 required: %i(sizeInMB type),
-                additionalProperties: false,
                 type: 'object',
               },
             },

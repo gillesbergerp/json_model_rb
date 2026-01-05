@@ -57,7 +57,6 @@ RSpec.describe('User schema') do
               tags: { type: 'array', items: { type: 'string' } },
               birthday: { type: 'string', format: 'date' },
             },
-            additionalProperties: false,
             required: %i(addresses email name),
             '$defs': {
               Address: {
@@ -70,7 +69,6 @@ RSpec.describe('User schema') do
                   street: { type: 'string' },
                 },
                 required: %i(city country street),
-                additionalProperties: false,
               },
             },
           },
