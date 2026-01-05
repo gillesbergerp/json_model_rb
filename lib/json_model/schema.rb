@@ -114,7 +114,7 @@ module JsonModel
         if !defined?(@local_properties)
           ancestor_properties = parent_schemas.flat_map { |property| property.properties.values }
           @local_properties = properties.select do |_key, property|
-            ancestor_properties.none? { |ancestor_property| ancestor_property == property }
+            ancestor_properties.none? { |ancestor_property| ancestor_property.as_schema == property.as_schema }
           end
         end
 

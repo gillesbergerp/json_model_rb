@@ -17,10 +17,12 @@ module JsonModel
       def self.inherited(subclass)
         super
         subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(subclass))
+        subclass.schema_version(JsonModel.config.schema_version)
         subclass.meta_attributes[:$ref] = schema_id
       end
 
       schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
+      schema_version(JsonModel.config.schema_version)
     end
 
     class_methods do
