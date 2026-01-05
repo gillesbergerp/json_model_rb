@@ -39,5 +39,7 @@ module JsonModel
     end
 
     option(:validate_after_instantiation, default: true)
+
+    option(:schema_version)
   end
 end
