@@ -20,20 +20,6 @@ RSpec.describe('User schema') do
 
     stub_const('Address', address_class)
 
-    person_class = Class.new do
-      include(JsonModel::Schema)
-
-      def self.name
-        'Person'
-      end
-
-      schema_id('person.schema.json')
-      property(:name, type: String)
-      property(:email, type: T::String[format: :email])
-    end
-
-    stub_const('Person', person_class)
-
     user_class = Class.new do
       include(JsonModel::Schema)
 
@@ -41,7 +27,8 @@ RSpec.describe('User schema') do
         'User'
       end
 
-      compose(T::AllOf[Person], ref_mode: JsonModel::RefMode::EXTERNAL)
+      property(:name, type: String)
+      property(:email, type: T::String[format: :email])
       property(:age, type: T::Integer[minimum: 0, maximum: 120], optional: true)
       property(:active, type: T::Boolean, default: true, optional: true)
       property(:addresses, type: T::Array[Address], ref_mode: JsonModel::RefMode::LOCAL)
@@ -60,8 +47,9 @@ RSpec.describe('User schema') do
         eq(
           {
             type: 'object',
-            allOf: [{ '$ref': 'person.schema.json' }],
             properties: {
+              name: { type: 'string' },
+              email: { type: 'string', format: 'email' },
               age: { type: 'integer', minimum: 0, maximum: 120 },
               active: { type: 'boolean', default: true },
               addresses: {
@@ -73,7 +61,7 @@ RSpec.describe('User schema') do
               websites: { type: 'array', items: { type: 'string', format: 'uri' } },
               height: { type: 'number' },
             },
-            required: %i(addresses),
+            required: %i(addresses email name),
             '$defs': {
               Address: {
                 type: 'object',

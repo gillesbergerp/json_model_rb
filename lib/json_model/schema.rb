@@ -3,7 +3,6 @@
 module JsonModel
   module Schema
     extend(ActiveSupport::Concern)
-    include(Composeable)
     include(Properties)
     include(SchemaMeta)
 
@@ -62,7 +61,6 @@ module JsonModel
               required: required_properties_as_schema,
               '$defs': defs_as_schema,
             )
-            .merge(**composed_types_as_schema)
             .merge(type: 'object')
             .compact
         when RefMode::LOCAL
@@ -96,7 +94,11 @@ module JsonModel
       end
 
       def defs_as_schema
-        referenced_schemas = (composed_type_defs + local_properties.values.flat_map(&:referenced_schemas)).uniq
+        referenced_schemas = local_properties
+                               .values
+                               .flat_map(&:referenced_schemas)
+                               .uniq
+
         if referenced_schemas.any?
           referenced_schemas.to_h { |type| [type.name.to_sym, type.as_schema] }
         end
