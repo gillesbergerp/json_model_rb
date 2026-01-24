@@ -2,17 +2,15 @@
 
 module JsonModel
   class Property
-    attr_reader(:name, :default, :type, :optional, :alias)
+    attr_reader(:name, :type, :alias)
 
     # @param [Symbol] name
     # @param [Types::Type] type
-    # @param [Object, nil] default
     # @param [Symbol] ref_mode
     # @param [Symbol, nil] as
-    def initialize(name, type:, default: nil, ref_mode: RefMode::INLINE, as: nil)
+    def initialize(name, type:, ref_mode: RefMode::INLINE, as: nil)
       @name = name
       @type = type
-      @default = default
       @ref_mode = ref_mode
       @alias = as || JsonModel.config.property_naming_strategy.call(name).to_sym
     end
@@ -33,6 +31,11 @@ module JsonModel
         klass.validates(name, presence: true)
       end
       type.register_validations(name, klass)
+    end
+
+    # @return [::Object, nil]
+    def default
+      @type.default
     end
 
     # @return [TrueClass, FalseClass]

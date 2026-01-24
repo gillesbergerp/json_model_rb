@@ -57,7 +57,7 @@ RSpec.describe(JsonModel::Properties) do
     end
 
     context('with a default value') do
-      before { klass.property(:foo, type: String, default: 'bar') }
+      before { klass.property(:foo, type: JsonModel::Types.string.with_default('bar')) }
 
       it('returns the default value') do
         expect(klass.new.foo)

@@ -5,11 +5,20 @@ module JsonModel
     module Builder
       extend(ActiveSupport::Concern)
 
+      attr_reader(:default)
+
       class_methods do
         def register_constraint(name, builder)
           define_method(name) { |*args, **kwargs| register(builder.new(*args, **kwargs)) }
           define_singleton_method(name) { |*args, **kwargs| new.register(builder.new(*args, **kwargs)) }
         end
+      end
+
+      # @param [Object] value
+      # @return [Builder]
+      def with_default(value)
+        @default = value
+        self
       end
 
       # @return [Builder]
@@ -18,7 +27,7 @@ module JsonModel
         self
       end
 
-      # @return [Array<Builder>]
+      # @return [::Array<Builder>]
       def constraints
         @constraints ||= []
       end

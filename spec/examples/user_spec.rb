@@ -15,7 +15,7 @@ RSpec.describe('User schema') do
       property(:city, type: String)
       property(:state, type: JsonModel::Types.string.optional)
       property(:postal_code, type: JsonModel::Types.string.pattern(/\A\d{5}(-\d{4})?\z/).optional)
-      property(:country, type: String, default: 'USA')
+      property(:country, type: JsonModel::Types.string.with_default('USA'))
     end
 
     stub_const('Address', address_class)
@@ -30,7 +30,7 @@ RSpec.describe('User schema') do
       property(:name, type: String)
       property(:email, type: JsonModel::Types.string.format(:email))
       property(:age, type: JsonModel::Types.integer.minimum(0).maximum(120).optional)
-      property(:active, type: JsonModel::Types.boolean.optional, default: true)
+      property(:active, type: JsonModel::Types.boolean.optional.with_default(true))
       property(:addresses, type: JsonModel::Types.array(Address), ref_mode: JsonModel::RefMode::LOCAL)
       property(:tags, type: JsonModel::Types.array(String).optional)
       property(:birthday, type: JsonModel::Types.date.optional)
