@@ -5,7 +5,7 @@ module JsonModel
     attr_reader(:name, :default, :type, :optional, :alias)
 
     # @param [Symbol] name
-    # @param [TypeSpec] type
+    # @param [Types::Type] type
     # @param [Object, nil] default
     # @param [Boolean] optional
     # @param [Symbol] ref_mode

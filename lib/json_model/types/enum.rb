@@ -1,22 +1,44 @@
 # frozen_string_literal: true
 
-module T
-  class Enum
-    # @param [Array<Object>] values
-    def initialize(*values)
-      @values = values
-    end
-
-    # @return [JsonModel::TypeSpec::Enum]
-    def to_type_spec
-      JsonModel::TypeSpec::Enum.new(*@values)
-    end
-
+module JsonModel
+  module Types
     class << self
-      # @param [Array] args
+      # @param [Array<Object, nil>] values
       # @return [Enum]
-      def [](*args)
-        Enum.new(*args)
+      def enum(*values)
+        Enum.new(*values)
+      end
+    end
+
+    class Enum
+      include(Type)
+      include(Builder)
+
+      attr_reader(:values)
+
+      # @param [Array<Object, nil>] values
+      def initialize(*values)
+        @values = values
+
+        if @values.blank?
+          raise(ArgumentError, 'Enum type spec requires a non-empty enum array')
+        end
+      end
+
+      # @param [Hash] _options
+      # @return [Hash]
+      def as_schema(**_options)
+        {
+          enum: values,
+        }.compact
+      end
+
+      # @param [Symbol] name
+      # @param [ActiveModel::Validations] klass
+      def register_validations(name, klass)
+        super
+
+        klass.validates(name, inclusion: { in: values }, allow_nil: true)
       end
     end
   end

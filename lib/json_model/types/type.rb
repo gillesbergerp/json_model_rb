@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+module JsonModel
+  module Types
+    module Type
+      # @param [::Object] json
+      # @return [::Object, nil]
+      def cast(json)
+        json
+      end
+
+      # @return [::Array<Type>]
+      def referenced_schemas
+        []
+      end
+    end
+  end
+end

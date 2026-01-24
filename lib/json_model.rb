@@ -12,7 +12,6 @@ require('json_model/property')
 require('json_model/ref_mode')
 require('json_model/schema_meta')
 require('json_model/schema')
-require('json_model/type_spec')
 require('json_model/types')
 require('json_model/version')
 

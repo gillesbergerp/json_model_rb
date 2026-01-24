@@ -44,7 +44,7 @@ RSpec.describe(JsonModel::Schema) do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:foo, type: T::String[min_length: 3])
+        property(:foo, type: JsonModel::Types.string.min_length(3))
       end
     end
 
@@ -121,8 +121,8 @@ RSpec.describe(JsonModel::Schema) do
       klass.schema_id('https://example.com/schemas/example.json')
       klass.property(:foo, type: String)
       klass.property(:bar, type: Float, optional: true)
-      klass.property(:baz, type: T::Enum[1, 'a', nil])
-      klass.property(:bam, type: T::Array[T::AllOf[String, Float]])
+      klass.property(:baz, type: JsonModel::Types.enum(1, 'a', nil))
+      klass.property(:bam, type: JsonModel::Types.array(JsonModel::Types.all_of(String, Float)))
       klass.property(:bal, type: klass, ref_mode: JsonModel::RefMode::EXTERNAL, optional: true)
 
       expect(klass.as_schema)
@@ -170,8 +170,8 @@ RSpec.describe(JsonModel::Schema) do
       )
       klass.property(
         :bar,
-        type: T::Array[
-          T::Array[
+        type: JsonModel::Types.array(
+          JsonModel::Types.array(
             Class.new do
               include(JsonModel::Schema)
 
@@ -181,8 +181,8 @@ RSpec.describe(JsonModel::Schema) do
                 'Bar'
               end
             end,
-          ],
-        ],
+          ),
+        ),
         ref_mode: JsonModel::RefMode::LOCAL,
       )
 

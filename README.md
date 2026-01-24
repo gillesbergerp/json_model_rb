@@ -100,7 +100,7 @@ class Product
   property :id, type: String
   property :name, type: String
   property :price, type: T::Float[minimum: 0]
-  property :available, type: T::Boolean, default: true, optional: true
+  property :available, type: JsonModel::Types.boolean, default: true, optional: true
 end
 ```
 
@@ -124,22 +124,22 @@ class StringExample
   property :simple_string, type: String
 
   # String with length constraints
-  property :username, type: T::String[min_length: 3, max_length: 20]
+  property :username, type: JsonModel::Types.string[min_length: 3, max_length: 20]
 
   # String with pattern (regex)
-  property :product_code, type: T::String[pattern: /\A[A-Z]{3}-\d{4}\z/]
+  property :product_code, type: JsonModel::Types.string.pattern(/\A[A-Z]{3}-\d{4}\z/)
 
   # String with format
-  property :email, type: T::String[format: :email]
-  property :uri, type: T::String[format: :uri]
-  property :hostname, type: T::String[format: :hostname]
-  property :ipv4, type: T::String[format: :ipv4]
-  property :ipv6, type: T::String[format: :ipv6]
-  property :uuid, type: T::String[format: :uuid]
-  property :date, type: T::String[format: :date]
-  property :time, type: T::String[format: :time]
-  property :datetime, type: T::String[format: :date_time]
-  property :duration, type: T::String[format: :duration]
+  property :email, type: JsonModel::Types.string.format(:email)
+  property :uri, type: JsonModel::Types.string.format(:uri)
+  property :hostname, type: JsonModel::Types.string.format(:hostname)
+  property :ipv4, type: JsonModel::Types.string.format(:ipv4)
+  property :ipv6, type: JsonModel::Types.string.format(:ipv6)
+  property :uuid, type: JsonModel::Types.string.format(:uuid)
+  property :date, type: JsonModel::Types.string.format(:date)
+  property :time, type: JsonModel::Types.string.format(:time)
+  property :datetime, type: JsonModel::Types.string.format(:date_time)
+  property :duration, type: JsonModel::Types.string.format(:duration)
   
   # String with enum
   property :status, T::Enum["draft", "published", "archived"]
@@ -316,9 +316,9 @@ puts JSON.pretty_generate(NumericExample.as_schema)
 class BooleanExample
   include JsonModel::Schema
 
-  property :is_active, type: T::Boolean
-  property :has_agreed, type: T::Boolean, default: false
-  property :enabled, type: T::Boolean, optional: true
+  property :is_active, type: JsonModel::Types.boolean
+  property :has_agreed, type: JsonModel::Types.boolean, default: false
+  property :enabled, type: JsonModel::Types.boolean, optional: true
 end
 
 # Generate the JSON Schema
@@ -356,10 +356,10 @@ class ArrayExample
   include JsonModel::Schema
 
   # Simple array
-  property :tags, type: T::Array[String]
+  property :tags, type: JsonModel::Types.array(String)
 
   # Array with constraints
-  property :numbers, type: T::Array[Integer, min_items: 1, max_items: 10, unique_items: true]
+  property :numbers, type: JsonModel::Types.array(Integer).min_items(1).max_items(10).unique_items
 end
 
 # Generate the JSON Schema
@@ -414,7 +414,7 @@ end
 class EmployeeDetails
   include JsonModel::Schema
 
-  property :employee_id, type: T::String[pattern: /\AE-\d{4}\z/]
+  property :employee_id, type: JsonModel::Types.string.pattern(/\AE-\d{4}\z/)
   property :department, type: String
   property :salary, type: T::Number[minimum: 0], optional: true
 end
@@ -502,7 +502,7 @@ end
 class PhoneContact
   include JsonModel::Schema
 
-  property :phone, type: T::String[pattern: /\A\+?[1-9]\\d{1,14}\z/]
+  property :phone, type: JsonModel::Types.string.pattern(/\A\+?[1-9]\\d{1,14}\z/)
 end
 
 class AddressContact
@@ -595,23 +595,23 @@ class CreditCardPayment
   include JsonModel::Schema
 
   property :payment_type, T::Const["credit_card"]
-  property :card_number, type: T::String[pattern: /\A\d{16}\z/]
-  property :cvv, type: T::String[pattern: /\A\d{3,4}\z/]
-  property :expiry, type: T::String[pattern: /\A\d{2}\/\d{2}\z/]
+  property :card_number, type: JsonModel::Types.string.pattern(/\A\d{16}\z/)
+  property :cvv, type: JsonModel::Types.string.pattern(/\A\d{3,4}\z/)
+  property :expiry, type: JsonModel::Types.string.pattern(/\A\d{2}\/\d{2}\z/)
 end
 
 class PayPalPayment
   include JsonModel::Schema
 
   property :payment_type, T::Const["paypal"]
-  property :paypal_email, type: T::String[format: :email]
+  property :paypal_email, type: JsonModel::Types.string.format(:email)
 end
 
 class BankTransferPayment
   include JsonModel::Schema
 
   property :payment_type, type: T::Const["bank_transfer"]
-  property :iban, type: T::String[pattern: "^[A-Z]{2}\\d{2}[A-Z0-9]+$"]
+  property :iban, type: JsonModel::Types.string.pattern("^[A-Z]{2}\\d{2}[A-Z0-9]+$")
   property :swift, type: String, optional: true
 end
 

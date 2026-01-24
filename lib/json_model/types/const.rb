@@ -1,22 +1,44 @@
 # frozen_string_literal: true
 
-module T
-  class Const
-    # @param [String] value
-    def initialize(value)
-      @value = value
-    end
-
-    # @return [JsonModel::TypeSpec::Const]
-    def to_type_spec
-      JsonModel::TypeSpec::Const.new(*@value)
-    end
-
+module JsonModel
+  module Types
     class << self
-      # @param [Array] args
+      # @param [Object] value
       # @return [Const]
-      def [](*args)
-        Const.new(*args)
+      def const(value)
+        Const.new(value)
+      end
+    end
+
+    class Const
+      include(Type)
+      include(Builder)
+
+      attr_reader(:value)
+
+      # @param [Object] value
+      def initialize(value)
+        @value = value
+
+        if value.blank?
+          raise(ArgumentError, 'Const type spec requires a non-empty value')
+        end
+      end
+
+      # @param [Hash] _options
+      # @return [Hash]
+      def as_schema(**_options)
+        {
+          const: value,
+        }.compact
+      end
+
+      # @param [Symbol] name
+      # @param [ActiveModel::Validations] klass
+      def register_validations(name, klass)
+        super
+
+        klass.validates(name, inclusion: { in: [value] }, allow_nil: true)
       end
     end
   end

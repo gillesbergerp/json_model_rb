@@ -15,7 +15,7 @@ RSpec.describe(JsonModel::Property) do
     context('for an optional property') do
       before do
         described_class
-          .new(:foo, type: JsonModel::TypeSpec::Primitive::String.new, optional: true)
+          .new(:foo, type: JsonModel::Types.string, optional: true)
           .register_validations(klass)
       end
 
@@ -41,7 +41,7 @@ RSpec.describe(JsonModel::Property) do
     context('for a non-optional property') do
       before do
         described_class
-          .new(:foo, type: JsonModel::TypeSpec::Primitive::String.new)
+          .new(:foo, type: JsonModel::Types.string)
           .register_validations(klass)
       end
 
@@ -67,19 +67,19 @@ RSpec.describe(JsonModel::Property) do
 
   describe('#as_schema') do
     it('renders the property as a schema') do
-      expect(described_class.new(:foo, type: JsonModel::TypeSpec::Primitive::String.new).as_schema)
+      expect(described_class.new(:foo, type: JsonModel::Types.string).as_schema)
         .to(eq({ foo: { type: 'string' } }))
     end
 
     it('respects the "as" option') do
-      expect(described_class.new(:foo, type: JsonModel::TypeSpec::Primitive::String.new, as: :bar).as_schema)
+      expect(described_class.new(:foo, type: JsonModel::Types.string, as: :bar).as_schema)
         .to(eq({ bar: { type: 'string' } }))
     end
 
     it('falls back to the configured naming strategy') do
       JsonModel.configure { |config| config.property_naming_strategy = :camel_case }
 
-      expect(described_class.new(:foo_bar, type: JsonModel::TypeSpec::Primitive::String.new).as_schema)
+      expect(described_class.new(:foo_bar, type: JsonModel::Types.string).as_schema)
         .to(eq({ fooBar: { type: 'string' } }))
     end
   end
