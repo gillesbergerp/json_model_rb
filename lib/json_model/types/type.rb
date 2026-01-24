@@ -16,11 +16,7 @@ module JsonModel
 
       # @return [TrueClass, FalseClass]
       def required?
-        if @optional.nil?
-          true
-        else
-          !@optional
-        end
+        @optional.nil? || !@optional
       end
     end
   end

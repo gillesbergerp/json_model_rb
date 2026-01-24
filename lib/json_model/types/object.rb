@@ -13,6 +13,7 @@ module JsonModel
     class Object
       include(Type)
       include(Builder)
+      include(Builder::RefMode)
 
       attr_reader(:type)
 
@@ -21,15 +22,18 @@ module JsonModel
         @type = type
       end
 
-      # @param [Hash] options
       # @return [Hash]
-      def as_schema(**options)
-        @type.as_schema(**options)
+      def as_schema
+        @type.as_schema(ref_mode: ref_mode)
       end
 
       # @return [::Array<Type>]
       def referenced_schemas
-        [@type]
+        if ref_mode == RefMode::LOCAL
+          [@type]
+        else
+          []
+        end
       end
 
       # @param [::Object] json

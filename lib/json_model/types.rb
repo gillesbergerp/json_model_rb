@@ -15,7 +15,7 @@ require_relative('types/primitive')
 module JsonModel
   module Types
     TYPE_MAP = {
-      ::Date => Types.date ,
+      ::Date => Types.date,
       ::DateTime => Types.date_time,
       ::FalseClass => Types.boolean,
       ::Float => Types.number,

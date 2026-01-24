@@ -17,11 +17,10 @@ module JsonModel
         @discriminator = discriminator
       end
 
-      # @param [Hash] options
       # @return [Hash]
-      def as_schema(**options)
+      def as_schema
         {
-          modifier => types.map { |type| type.as_schema(**options) },
+          modifier => types.map(&:as_schema),
         }
       end
 

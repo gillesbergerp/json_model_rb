@@ -6,21 +6,18 @@ module JsonModel
 
     # @param [Symbol] name
     # @param [Types::Type] type
-    # @param [Symbol] ref_mode
     # @param [Symbol, nil] as
-    def initialize(name, type:, ref_mode: RefMode::INLINE, as: nil)
+    def initialize(name, type:, as: nil)
       @name = name
       @type = type
-      @ref_mode = ref_mode
       @alias = as || JsonModel.config.property_naming_strategy.call(name).to_sym
     end
 
-    # @param [Hash] options
     # @return [Hash]
-    def as_schema(**options)
+    def as_schema
       {
         self.alias => type
-                        .as_schema(**options, ref_mode: @ref_mode)
+                        .as_schema
                         .merge({ default: default }.compact),
       }
     end
@@ -35,21 +32,17 @@ module JsonModel
 
     # @return [::Object, nil]
     def default
-      @type.default
+      type.default
     end
 
     # @return [TrueClass, FalseClass]
     def required?
-      @type.required?
+      type.required?
     end
 
     # @return [Array]
     def referenced_schemas
-      if @ref_mode == RefMode::LOCAL
-        type.referenced_schemas
-      else
-        []
-      end
+      type.referenced_schemas
     end
   end
 end

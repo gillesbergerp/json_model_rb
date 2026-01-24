@@ -3,9 +3,8 @@
 module JsonModel
   module Types
     module Constraint
-      # @param [Hash] options
       # @return [Hash]
-      def as_schema(**options)
+      def as_schema
         raise(NotImplementedError)
       end
 

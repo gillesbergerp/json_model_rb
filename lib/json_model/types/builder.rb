@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative('builder/ref_mode')
+
 module JsonModel
   module Types
     module Builder
@@ -32,10 +34,9 @@ module JsonModel
         @constraints ||= []
       end
 
-      # @param [Hash] options
       # @return [Hash]
-      def as_schema(**options)
-        constraints.map { |builder| builder.as_schema(**options) }.reduce(:merge) || {}
+      def as_schema
+        constraints.map(&:as_schema).reduce(:merge) || {}
       end
 
       # @param [Symbol] name

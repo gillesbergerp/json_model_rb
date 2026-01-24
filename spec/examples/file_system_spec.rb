@@ -56,8 +56,13 @@ RSpec.describe('File system schema') do
         description('JSON Schema for an fstab entry')
         property(
           :storage,
-          type: JsonModel::Types.one_of(DiskDevice, DiskUuid, Nfs, Tmpfs, discriminator: :type),
-          ref_mode: JsonModel::RefMode::LOCAL,
+          type: JsonModel::Types.one_of(
+            JsonModel::Types.object(DiskDevice).with_ref_mode(JsonModel::RefMode::LOCAL),
+            JsonModel::Types.object(DiskUuid).with_ref_mode(JsonModel::RefMode::LOCAL),
+            JsonModel::Types.object(Nfs).with_ref_mode(JsonModel::RefMode::LOCAL),
+            JsonModel::Types.object(Tmpfs).with_ref_mode(JsonModel::RefMode::LOCAL),
+            discriminator: :type,
+          ),
         )
         property(:fstype, type: JsonModel::Types.enum('ext3', 'ext4', 'btrfs').optional)
         property(:options, type: JsonModel::Types.array(String).min_items(1).unique_items.optional)

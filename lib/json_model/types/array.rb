@@ -26,12 +26,11 @@ module JsonModel
         @type = Types.resolve(type)
       end
 
-      # @param [Hash] options
       # @return [Hash]
-      def as_schema(**options)
+      def as_schema
         super.merge(
           type: 'array',
-          items: @type.as_schema(**options),
+          items: @type.as_schema,
         )
       end
 

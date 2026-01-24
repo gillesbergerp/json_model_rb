@@ -123,7 +123,7 @@ RSpec.describe(JsonModel::Schema) do
       klass.property(:bar, type: JsonModel::Types.number.optional)
       klass.property(:baz, type: JsonModel::Types.enum(1, 'a', nil))
       klass.property(:bam, type: JsonModel::Types.array(JsonModel::Types.all_of(String, Float)))
-      klass.property(:bal, type: JsonModel::Types.object(klass).optional, ref_mode: JsonModel::RefMode::EXTERNAL)
+      klass.property(:bal, type: JsonModel::Types.object(klass).optional.with_ref_mode(JsonModel::RefMode::EXTERNAL))
 
       expect(klass.as_schema)
         .to(
@@ -160,30 +160,34 @@ RSpec.describe(JsonModel::Schema) do
       )
       klass.property(
         :bam,
-        type: Class.new do
-          include(JsonModel::Schema)
+        type: JsonModel::Types.object(
+          Class.new do
+            include(JsonModel::Schema)
 
-          property(:bam, type: String)
-          schema_id('https://example.com/schemas/bam.json')
-        end,
-        ref_mode: JsonModel::RefMode::EXTERNAL,
+            property(:bam, type: String)
+            schema_id('https://example.com/schemas/bam.json')
+          end,
+        )
+                              .with_ref_mode(JsonModel::RefMode::EXTERNAL),
       )
       klass.property(
         :bar,
         type: JsonModel::Types.array(
           JsonModel::Types.array(
-            Class.new do
-              include(JsonModel::Schema)
+            JsonModel::Types.object(
+              Class.new do
+                include(JsonModel::Schema)
 
-              property(:bar, type: String)
+                property(:bar, type: String)
 
-              def self.name
-                'Bar'
-              end
-            end,
+                def self.name
+                  'Bar'
+                end
+              end,
+            )
+                            .as_local_ref,
           ),
         ),
-        ref_mode: JsonModel::RefMode::LOCAL,
       )
 
       expect(klass.as_schema)

@@ -31,7 +31,7 @@ RSpec.describe('User schema') do
       property(:email, type: JsonModel::Types.string.format(:email))
       property(:age, type: JsonModel::Types.integer.minimum(0).maximum(120).optional)
       property(:active, type: JsonModel::Types.boolean.optional.with_default(true))
-      property(:addresses, type: JsonModel::Types.array(Address), ref_mode: JsonModel::RefMode::LOCAL)
+      property(:addresses, type: JsonModel::Types.array(JsonModel::Types.object(Address).with_ref_mode(JsonModel::RefMode::LOCAL)))
       property(:tags, type: JsonModel::Types.array(String).optional)
       property(:birthday, type: JsonModel::Types.date.optional)
       property(:websites, type: JsonModel::Types.array(URI).optional)

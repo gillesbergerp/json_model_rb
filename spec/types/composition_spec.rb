@@ -39,14 +39,17 @@ RSpec.describe(JsonModel::Types::Composition) do
         described_class
           .new(
             :allOf,
-            Class.new do
-              include(JsonModel::Schema)
+            JsonModel::Types.object(
+              Class.new do
+                include(JsonModel::Schema)
 
-              property(:foo, type: String)
-              schema_id('https://example.com/schemas/foo.json')
-            end,
+                property(:foo, type: String)
+                schema_id('https://example.com/schemas/foo.json')
+              end,
+            )
+                            .as_external_ref,
           )
-          .as_schema(ref_mode: JsonModel::RefMode::EXTERNAL),
+          .as_schema,
       )
         .to(
           eq(
@@ -64,17 +67,18 @@ RSpec.describe(JsonModel::Types::Composition) do
         described_class
           .new(
             :allOf,
-            Class.new do
-              include(JsonModel::Schema)
+            JsonModel::Types.object(
+              Class.new do
+                include(JsonModel::Schema)
 
-              property(:foo, type: String)
+                property(:foo, type: String)
 
-              def self.name
-                'Foo'
-              end
-            end,
-          )
-          .as_schema(ref_mode: JsonModel::RefMode::LOCAL),
+                def self.name
+                  'Foo'
+                end
+              end,
+            ).as_local_ref,
+          ).as_schema,
       )
         .to(
           eq(
