@@ -59,9 +59,9 @@ RSpec.describe('File system schema') do
           type: JsonModel::Types.one_of(DiskDevice, DiskUuid, Nfs, Tmpfs, discriminator: :type),
           ref_mode: JsonModel::RefMode::LOCAL,
         )
-        property(:fstype, type: JsonModel::Types.enum('ext3', 'ext4', 'btrfs'), optional: true)
-        property(:options, type: JsonModel::Types.array(String).min_items(1).unique_items, optional: true)
-        property(:readonly, type: JsonModel::Types.boolean, optional: true)
+        property(:fstype, type: JsonModel::Types.enum('ext3', 'ext4', 'btrfs').optional)
+        property(:options, type: JsonModel::Types.array(String).min_items(1).unique_items.optional)
+        property(:readonly, type: JsonModel::Types.boolean.optional)
       end,
     )
   end

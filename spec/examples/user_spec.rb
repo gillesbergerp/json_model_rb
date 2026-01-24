@@ -13,8 +13,8 @@ RSpec.describe('User schema') do
 
       property(:street, type: String)
       property(:city, type: String)
-      property(:state, type: String, optional: true)
-      property(:postal_code, type: JsonModel::Types.string.pattern(/\A\d{5}(-\d{4})?\z/), optional: true)
+      property(:state, type: JsonModel::Types.string.optional)
+      property(:postal_code, type: JsonModel::Types.string.pattern(/\A\d{5}(-\d{4})?\z/).optional)
       property(:country, type: String, default: 'USA')
     end
 
@@ -29,13 +29,13 @@ RSpec.describe('User schema') do
 
       property(:name, type: String)
       property(:email, type: JsonModel::Types.string.format(:email))
-      property(:age, type: JsonModel::Types.integer.minimum(0).maximum(120), optional: true)
-      property(:active, type: JsonModel::Types.boolean, default: true, optional: true)
+      property(:age, type: JsonModel::Types.integer.minimum(0).maximum(120).optional)
+      property(:active, type: JsonModel::Types.boolean.optional, default: true)
       property(:addresses, type: JsonModel::Types.array(Address), ref_mode: JsonModel::RefMode::LOCAL)
-      property(:tags, type: JsonModel::Types.array(String), optional: true)
-      property(:birthday, type: Date, optional: true)
-      property(:websites, type: JsonModel::Types.array(URI), optional: true)
-      property(:height, type: Float, optional: true)
+      property(:tags, type: JsonModel::Types.array(String).optional)
+      property(:birthday, type: JsonModel::Types.date.optional)
+      property(:websites, type: JsonModel::Types.array(URI).optional)
+      property(:height, type: JsonModel::Types.number.optional)
     end
 
     stub_const('User', user_class)

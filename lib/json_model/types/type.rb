@@ -13,6 +13,15 @@ module JsonModel
       def referenced_schemas
         []
       end
+
+      # @return [TrueClass, FalseClass]
+      def required?
+        if @optional.nil?
+          true
+        else
+          !@optional
+        end
+      end
     end
   end
 end

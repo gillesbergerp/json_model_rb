@@ -7,14 +7,12 @@ module JsonModel
     # @param [Symbol] name
     # @param [Types::Type] type
     # @param [Object, nil] default
-    # @param [Boolean] optional
     # @param [Symbol] ref_mode
     # @param [Symbol, nil] as
-    def initialize(name, type:, default: nil, optional: false, ref_mode: RefMode::INLINE, as: nil)
+    def initialize(name, type:, default: nil, ref_mode: RefMode::INLINE, as: nil)
       @name = name
       @type = type
       @default = default
-      @optional = optional
       @ref_mode = ref_mode
       @alias = as || JsonModel.config.property_naming_strategy.call(name).to_sym
     end
@@ -37,9 +35,9 @@ module JsonModel
       type.register_validations(name, klass)
     end
 
-    # @return [Boolean]
+    # @return [TrueClass, FalseClass]
     def required?
-      !optional
+      @type.required?
     end
 
     # @return [Array]

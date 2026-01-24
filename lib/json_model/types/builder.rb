@@ -12,6 +12,12 @@ module JsonModel
         end
       end
 
+      # @return [Builder]
+      def optional
+        @optional = true
+        self
+      end
+
       # @return [Array<Builder>]
       def constraints
         @constraints ||= []

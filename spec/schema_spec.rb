@@ -8,7 +8,7 @@ RSpec.describe(JsonModel::Schema) do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:foo, type: String, optional: true)
+        property(:foo, type: JsonModel::Types.string.optional)
 
         def self.name
           'Foo'
@@ -120,10 +120,10 @@ RSpec.describe(JsonModel::Schema) do
     it('returns properties as schema') do
       klass.schema_id('https://example.com/schemas/example.json')
       klass.property(:foo, type: String)
-      klass.property(:bar, type: Float, optional: true)
+      klass.property(:bar, type: JsonModel::Types.number.optional)
       klass.property(:baz, type: JsonModel::Types.enum(1, 'a', nil))
       klass.property(:bam, type: JsonModel::Types.array(JsonModel::Types.all_of(String, Float)))
-      klass.property(:bal, type: klass, ref_mode: JsonModel::RefMode::EXTERNAL, optional: true)
+      klass.property(:bal, type: JsonModel::Types.object(klass).optional, ref_mode: JsonModel::RefMode::EXTERNAL)
 
       expect(klass.as_schema)
         .to(

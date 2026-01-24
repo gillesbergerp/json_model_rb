@@ -15,17 +15,17 @@ require_relative('types/primitive')
 module JsonModel
   module Types
     TYPE_MAP = {
-      ::Date => Types::Castable.new(format: 'date') { |v| ::DateTime.iso8601(v) },
-      ::DateTime => Types::Castable.new(format: 'date-time') { |v| ::DateTime.iso8601(v) },
+      ::Date => Types.date ,
+      ::DateTime => Types.date_time,
       ::FalseClass => Types.boolean,
       ::Float => Types.number,
       ::Integer => Types.integer,
       ::NilClass => Types.null,
-      ::Regexp => Types::Castable.new(format: 'regex') { |v| Regexp.new(v) },
+      ::Regexp => Types.regexp,
       ::String => Types.string,
-      ::Time => Types::Castable.new(format: 'time') { |v| ::Time.iso8601(v) },
+      ::Time => Types.time,
       ::TrueClass => Types.boolean,
-      ::URI => Types::Castable.new(format: 'uri') { |v| URI.parse(v) },
+      ::URI => Types.uri,
     }.freeze
 
     class << self

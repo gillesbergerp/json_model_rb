@@ -2,6 +2,14 @@
 
 module JsonModel
   module Types
+    class << self
+      # @param [Schema] type
+      # @return [Object]
+      def object(type)
+        Object.new(type)
+      end
+    end
+
     class Object
       include(Type)
       include(Builder)

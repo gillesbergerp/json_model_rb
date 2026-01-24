@@ -15,7 +15,7 @@ RSpec.describe(JsonModel::Property) do
     context('for an optional property') do
       before do
         described_class
-          .new(:foo, type: JsonModel::Types.string, optional: true)
+          .new(:foo, type: JsonModel::Types.string.optional)
           .register_validations(klass)
       end
 

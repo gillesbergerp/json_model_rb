@@ -62,7 +62,7 @@ module JsonModel
       end
 
       # @param [Boolean, nil] value
-      # @return [Boolean]
+      # @return [TrueClass, FalseClass]
       def additional_properties(value = nil)
         if value.nil?
           meta_attributes[:additionalProperties] || false
@@ -72,7 +72,7 @@ module JsonModel
       end
 
       # @param [Boolean, nil] value
-      # @return [Boolean]
+      # @return [TrueClass, FalseClass]
       def unevaluated_properties(value = nil)
         if value.nil?
           meta_attributes[:unevaluatedProperties] || false
@@ -82,7 +82,7 @@ module JsonModel
       end
 
       # @param [Symbol, nil] version
-      # @return [Boolean]
+      # @return [TrueClass, FalseClass]
       def schema_version(version = nil)
         if version.nil?
           meta_attributes[:$schema]
