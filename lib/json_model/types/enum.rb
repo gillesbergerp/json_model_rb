@@ -25,12 +25,9 @@ module JsonModel
         end
       end
 
-      # @param [Hash] _options
       # @return [Hash]
       def as_schema(**_options)
-        {
-          enum: values,
-        }.compact
+        super.merge(enum: values)
       end
 
       # @param [Symbol] name

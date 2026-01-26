@@ -23,9 +23,8 @@ module JsonModel
             @exclusive_minimum = exclusive_minimum
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { exclusiveMinimum: @exclusive_minimum }
           end
 

@@ -17,9 +17,8 @@ module JsonModel
             @minimum = minimum
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { minimum: @minimum }
           end
 

@@ -19,9 +19,7 @@ module JsonModel
 
       # @return [Hash]
       def as_schema
-        {
-          modifier => types.map(&:as_schema),
-        }
+        super.merge(modifier => types.map(&:as_schema))
       end
 
       # @return [Array<Type>]

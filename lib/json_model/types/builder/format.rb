@@ -89,9 +89,8 @@ module JsonModel
             @format = format
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { format: @format&.to_s&.tr('_', '-') }
           end
 

@@ -4,6 +4,13 @@ require('spec_helper')
 
 RSpec.describe('User schema') do
   before do
+    stub_const(
+      'Types',
+      Module.new do
+        include(Dry.Types())
+      end,
+    )
+
     address_class = Class.new do
       include(JsonModel::Schema)
 
@@ -13,7 +20,7 @@ RSpec.describe('User schema') do
 
       property(:street, type: String)
       property(:city, type: String)
-      property(:state, type: JsonModel::Types.string.optional)
+      property(:state, type: Types::String.optional)
       property(:postal_code, type: JsonModel::Types.string.pattern(/\A\d{5}(-\d{4})?\z/).optional)
       property(:country, type: JsonModel::Types.string.with_default('USA'))
     end

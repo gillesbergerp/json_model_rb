@@ -17,9 +17,8 @@ module JsonModel
             @max_length = max_length
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { maxLength: @max_length }
           end
 

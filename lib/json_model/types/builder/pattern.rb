@@ -17,9 +17,8 @@ module JsonModel
             @pattern = pattern
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { pattern: @pattern.source }
           end
 

@@ -16,9 +16,7 @@ module JsonModel
     # @return [Hash]
     def as_schema
       {
-        self.alias => type
-                        .as_schema
-                        .merge({ default: default }.compact),
+        self.alias => type.as_schema,
       }
     end
 
@@ -28,11 +26,6 @@ module JsonModel
         klass.validates(name, presence: true)
       end
       type.register_validations(name, klass)
-    end
-
-    # @return [::Object, nil]
-    def default
-      type.default
     end
 
     # @return [TrueClass, FalseClass]

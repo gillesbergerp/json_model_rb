@@ -13,9 +13,8 @@ module JsonModel
         @schema_type = schema_type
       end
 
-      # @param [Hash] _options
       # @return [Hash]
-      def as_schema(**_options)
+      def as_schema
         super.merge(type: @schema_type)
       end
 

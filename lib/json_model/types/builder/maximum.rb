@@ -23,9 +23,8 @@ module JsonModel
             @maximum = maximum
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { maximum: @maximum }
           end
 

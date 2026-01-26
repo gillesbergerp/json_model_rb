@@ -17,9 +17,8 @@ module JsonModel
             @min_length = min_length
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { minLength: @min_length }
           end
 

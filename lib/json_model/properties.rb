@@ -67,7 +67,7 @@ module JsonModel
           if attributes.key?(property.name)
             attributes[property.name]
           else
-            property.default
+            property.type.default
           end
         end
       end

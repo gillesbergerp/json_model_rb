@@ -17,9 +17,8 @@ module JsonModel
             @multiple_of = multiple_of
           end
 
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { multipleOf: @multiple_of }
           end
 

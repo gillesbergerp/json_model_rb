@@ -40,13 +40,12 @@ module JsonModel
         @cast_block = cast_block
       end
 
-      # @param [Hash] _options
       # @return [Hash]
-      def as_schema(**_options)
-        {
+      def as_schema
+        super.merge(
           type: 'string',
           format: @format,
-        }
+        )
       end
 
       # @param [::Object] json

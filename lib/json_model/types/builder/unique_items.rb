@@ -12,9 +12,8 @@ module JsonModel
         end
 
         class Constraint
-          # @param [Hash] _options
           # @return [Hash]
-          def as_schema(**_options)
+          def as_schema
             { uniqueItems: true }
           end
 

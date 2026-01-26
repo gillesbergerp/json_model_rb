@@ -24,7 +24,7 @@ module JsonModel
 
       # @return [Hash]
       def as_schema
-        @type.as_schema(ref_mode: ref_mode)
+        super.merge(@type.as_schema(ref_mode: ref_mode))
       end
 
       # @return [::Array<Type>]

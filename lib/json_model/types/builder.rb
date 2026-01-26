@@ -36,7 +36,11 @@ module JsonModel
 
       # @return [Hash]
       def as_schema
-        constraints.map(&:as_schema).reduce(:merge) || {}
+        result = constraints.map(&:as_schema).reduce(:merge) || {}
+        if defined?(@default)
+          result[:default] = @default
+        end
+        result
       end
 
       # @param [Symbol] name

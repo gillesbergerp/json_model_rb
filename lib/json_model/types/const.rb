@@ -25,12 +25,9 @@ module JsonModel
         end
       end
 
-      # @param [Hash] _options
       # @return [Hash]
-      def as_schema(**_options)
-        {
-          const: value,
-        }.compact
+      def as_schema
+        super.merge(const: value)
       end
 
       # @param [Symbol] name
