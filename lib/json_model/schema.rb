@@ -1,101 +1,63 @@
 # frozen_string_literal: true
 
+require_relative('builder')
+require_relative('schema_meta')
+
 module JsonModel
   module Schema
     extend(ActiveSupport::Concern)
-    include(Properties)
     include(SchemaMeta)
-
-    # @param [Hash, nil] attributes
-    def initialize(attributes = nil)
-      return unless attributes
-
-      assign_attributes(attributes)
-
-      if JsonModel.config.validate_after_instantiation
-        validate!
-      end
-    end
-
-    private
-
-    # @param [Hash, nil] attributes
-    def assign_attributes(attributes)
-      attributes.each { |name, value| assign_attribute(name, value) }
-    end
-
-    # @param [Symbol] name
-    # @param [Object] value
-    def assign_attribute(name, value)
-      if respond_to?("#{name}=")
-        send("#{name}=", value)
-      else
-        self.class.raise_unknown_attribute_error(name)
-      end
-    end
 
     class_methods do
       # @param [::Object] json
       # @return [::Object, nil]
       def from_json(json)
-        attributes = json.transform_keys { |key| invert_alias(key) || raise_unknown_attribute_error(key) }
+        attributes = json.transform_keys { |key| invert_alias(key) }
         new(attributes)
       end
 
-      # @param [Symbol] name
-      def raise_unknown_attribute_error(name)
-        if !additional_properties && JsonModel.config.validate_after_instantiation
-          raise(Errors::UnknownAttributeError.new(self, name))
-        end
+      # @param [Symbol] key
+      # @return [Symbol]
+      def invert_alias(key)
+        builder = builders.find { |b| b.alias.to_s == key.to_s }
+        builder&.type&.name || key
       end
 
-      # @param [Symbol] ref_mode
-      # @param [Hash] _options
       # @return [Hash]
-      def as_schema(ref_mode: RefMode::INLINE, **_options)
-        case ref_mode
-        when RefMode::INLINE
-          meta_attributes
-            .merge(
-              properties: properties_as_schema,
-              required: required_properties_as_schema,
-              '$defs': defs_as_schema,
-            )
-            .merge(type: 'object')
-            .compact
-        when RefMode::LOCAL
-          { '$ref': "#/$defs/#{name}" }
-        when RefMode::EXTERNAL
-          { '$ref': schema_id }
-        else
-          raise(Errors::InvalidRefModeError, ref_mode)
-        end
+      def as_schema
+        {
+          properties: properties_as_schema,
+          required: required_properties_as_schema,
+          '$defs': defs_as_schema,
+        }
+          .merge(type: 'object')
+          .merge(meta_attributes)
+          .compact
       end
 
       # @return [Hash, nil]
       def properties_as_schema
-        if local_properties.any?
-          local_properties
-            .sort_by { |key, _property| key }
-            .map { |_key, property| property.as_schema }
+        if local_builders.any?
+          local_builders
+            .sort_by(&:alias)
+            .map(&:as_schema)
             .inject({}, &:merge)
         end
       end
 
       # @return [Array, nil]
       def required_properties_as_schema
-        if local_properties.any?
-          local_properties
-            .values
-            .select(&:required?)
+        if local_builders.any?
+          local_builders
+            .reject(&:optional?)
             .map(&:alias)
             .sort
         end
       end
 
+      # @return [Hash, nil]
       def defs_as_schema
-        referenced_schemas = local_properties
-                               .values
+        referenced_schemas = local_builders
                                .flat_map(&:referenced_schemas)
                                .uniq
 
@@ -104,21 +66,33 @@ module JsonModel
         end
       end
 
-      # @return [Array<Class>]
-      def parent_schemas
-        @parent_schemas ||= ancestors.select { |klass| klass != self && klass < Schema }
+      # @return [Array<Builder>]
+      def local_builders
+        @local_builders ||= @schema
+                              .type
+                              .reject { |type| parent_keys.include?(type) }
+                              .map { |type| Builder.for(type) }
       end
 
-      # @return [Hash]
-      def local_properties
-        if !defined?(@local_properties)
-          ancestor_properties = parent_schemas.flat_map { |property| property.properties.values }
-          @local_properties = properties.select do |_key, property|
-            ancestor_properties.none? { |ancestor_property| ancestor_property.as_schema == property.as_schema }
-          end
-        end
+      # @return [Array<Builder>]
+      def builders
+        @builders ||= @local_builders + @schema
+                                          .type
+                                          .select { |type| parent_keys.include?(type) }
+                                          .map { |type| Builder.for(type) }
+      end
 
-        @local_properties
+      # @return [Array<Class>]
+      def parent_keys
+        @parent_keys ||= ancestors
+                           .select { |klass| referenceable_parent?(klass) }
+                           .flat_map { |klass| klass.schema.type.keys }
+      end
+
+      # @param [Class] klass
+      # @return [FalseClass, TrueClass]
+      def referenceable_parent?(klass)
+        klass < JsonModel::Schema && klass != self && schema_id != klass.schema_id
       end
     end
   end
