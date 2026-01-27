@@ -4,45 +4,38 @@ require('spec_helper')
 
 RSpec.describe('User schema') do
   before do
-    stub_const(
-      'Types',
-      Module.new do
-        include(Dry.Types())
-      end,
-    )
-
-    address_class = Class.new do
+    address_class = Class.new(Dry::Struct) do
       include(JsonModel::Schema)
 
       def self.name
         'Address'
       end
 
-      property(:street, type: String)
-      property(:city, type: String)
-      property(:state, type: Types::String.optional)
-      property(:postal_code, type: JsonModel::Types.string.pattern(/\A\d{5}(-\d{4})?\z/).optional)
-      property(:country, type: JsonModel::Types.string.with_default('USA'))
+      attribute(:street, JsonModel::Types::String)
+      attribute(:city, JsonModel::Types::String)
+      attribute?(:state, JsonModel::Types::String.optional)
+      attribute?(:postal_code, JsonModel::Types::String.constrained(format: /\A\d{5}(-\d{4})?\z/).optional)
+      attribute(:country, JsonModel::Types::String.default('USA'))
     end
 
     stub_const('Address', address_class)
 
-    user_class = Class.new do
+    user_class = Class.new(Dry::Struct) do
       include(JsonModel::Schema)
 
       def self.name
         'User'
       end
 
-      property(:name, type: String)
-      property(:email, type: JsonModel::Types.string.format(:email))
-      property(:age, type: JsonModel::Types.integer.minimum(0).maximum(120).optional)
-      property(:active, type: JsonModel::Types.boolean.optional.with_default(true))
-      property(:addresses, type: JsonModel::Types.array(JsonModel::Types.object(Address).with_ref_mode(JsonModel::RefMode::LOCAL)))
-      property(:tags, type: JsonModel::Types.array(String).optional)
-      property(:birthday, type: JsonModel::Types.date.optional)
-      property(:websites, type: JsonModel::Types.array(URI).optional)
-      property(:height, type: JsonModel::Types.number.optional)
+      attribute(:name, JsonModel::Types::String.constrained(min_size: 3))
+      attribute(:email, JsonModel::Types::Email)
+      attribute?(:age, JsonModel::Types::Integer.constrained(gteq: 0, lteq: 120).optional)
+      attribute(:active, JsonModel::Types::Bool.optional.default(true))
+      attribute(:addresses, JsonModel::Types::Array.of(Address.local))
+      attribute?(:tags, JsonModel::Types::Array.of(JsonModel::Types::String).optional)
+      attribute(:birthday, JsonModel::Types::Date.optional)
+      attribute?(:websites, JsonModel::Types::Array.of(JsonModel::Types::URI).optional)
+      attribute?(:height, JsonModel::Types::Float.optional)
     end
 
     stub_const('User', user_class)
@@ -55,18 +48,49 @@ RSpec.describe('User schema') do
           {
             type: 'object',
             properties: {
-              name: { type: 'string' },
+              name: { type: 'string', minLength: 3 },
               email: { type: 'string', format: 'email' },
-              age: { type: 'integer', minimum: 0, maximum: 120 },
-              active: { type: 'boolean', default: true },
+              age: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'integer', minimum: 0, maximum: 120 },
+                ],
+              },
+              active: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'boolean' },
+                ],
+                default: true,
+              },
               addresses: {
                 type: 'array',
                 items: { '$ref': '#/$defs/Address' },
               },
-              tags: { type: 'array', items: { type: 'string' } },
-              birthday: { type: 'string', format: 'date' },
-              websites: { type: 'array', items: { type: 'string', format: 'uri' } },
-              height: { type: 'number' },
+              tags: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'array', items: { type: 'string' } },
+                ],
+              },
+              birthday: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'string', format: 'date' },
+                ],
+              },
+              websites: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'array', items: { type: 'string', format: 'uri' } },
+                ],
+              },
+              height: {
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'number' },
+                ],
+              },
             },
             required: %i(addresses email name),
             '$defs': {
@@ -75,8 +99,18 @@ RSpec.describe('User schema') do
                 properties: {
                   city: { type: 'string' },
                   country: { type: 'string', default: 'USA' },
-                  postal_code: { type: 'string', pattern: '\A\d{5}(-\d{4})?\z' },
-                  state: { type: 'string' },
+                  postal_code: {
+                    anyOf: [
+                      { type: 'null' },
+                      { type: 'string', pattern: '\A\d{5}(-\d{4})?\z' },
+                    ],
+                  },
+                  state: {
+                    anyOf: [
+                      { type: 'null' },
+                      { type: 'string' },
+                    ],
+                  },
                   street: { type: 'string' },
                 },
                 required: %i(city country street),
@@ -92,7 +126,7 @@ RSpec.describe('User schema') do
       name: 'Foo',
       email: 'foo@example.com',
       addresses: [{ street: '123 Main St', city: 'Anytown' }],
-      birthday: '2000-01-01',
+      birthday: Date.new(2000, 1, 1),
     )
 
     expect(user.name).to(eq('Foo'))
