@@ -5,10 +5,10 @@ require('spec_helper')
 RSpec.describe(JsonModel::Schema) do
   describe('.initialize') do
     let(:klass) do
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
-        property(:foo, type: JsonModel::Types.string.optional)
+        attribute?(:foo, JsonModel::Types::String.optional)
 
         def self.name
           'Foo'
@@ -28,38 +28,14 @@ RSpec.describe(JsonModel::Schema) do
     end
 
     it('raises an error for unknown attributes when additional properties are not allowed') do
+      klass.schema(klass.schema.strict)
+
       expect { klass.new(bar: 'baz') }
-        .to(raise_error(JsonModel::Errors::UnknownAttributeError))
+        .to(raise_error(Dry::Struct::Error))
     end
 
     it('does not raise an error for unknown attributes when additional properties are allowed') do
-      klass.additional_properties(true)
-
       klass.new(bar: 'baz')
-    end
-  end
-
-  describe('#valid?') do
-    let(:klass) do
-      Class.new do
-        include(JsonModel::Schema)
-
-        property(:foo, type: JsonModel::Types.string.min_length(3))
-      end
-    end
-
-    before do
-      JsonModel.configure { |config| config.validate_after_instantiation = false }
-    end
-
-    it('returns false for invalid values') do
-      expect(klass.new(foo: 'ba').valid?)
-        .to(be(false))
-    end
-
-    it('returns true for valid values') do
-      expect(klass.new(foo: 'bar').valid?)
-        .to(be(true))
     end
   end
 
@@ -67,10 +43,10 @@ RSpec.describe(JsonModel::Schema) do
     before do
       stub_const(
         'Foo',
-        Class.new do
+        Class.new(Dry::Struct) do
           include(JsonModel::Schema)
 
-          property(:foo_bar, type: String, as: :fooBar)
+          attribute(:foo_bar, JsonModel::Types::String.as(:fooBar))
         end,
       )
 
@@ -93,7 +69,7 @@ RSpec.describe(JsonModel::Schema) do
 
   describe('.as_schema') do
     let(:klass) do
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
       end
     end
@@ -119,11 +95,11 @@ RSpec.describe(JsonModel::Schema) do
 
     it('returns properties as schema') do
       klass.schema_id('https://example.com/schemas/example.json')
-      klass.property(:foo, type: String)
-      klass.property(:bar, type: JsonModel::Types.number.optional)
-      klass.property(:baz, type: JsonModel::Types.enum(1, 'a', nil))
-      klass.property(:bam, type: JsonModel::Types.array(JsonModel::Types.all_of(String, Float)))
-      klass.property(:bal, type: JsonModel::Types.object(klass).optional.with_ref_mode(JsonModel::RefMode::EXTERNAL))
+      klass.attribute(:foo, JsonModel::Types::String)
+      klass.attribute(:bar, JsonModel::Types::Float.optional)
+      klass.attribute(:baz, JsonModel::Types::String.enum(1, 'a', nil))
+      klass.attribute(:bam, JsonModel::Types::Array.of(JsonModel::Types::String & JsonModel::Types::Float))
+      klass.attribute(:bal, klass.external.optional)
 
       expect(klass.as_schema)
         .to(
@@ -132,14 +108,24 @@ RSpec.describe(JsonModel::Schema) do
               '$id': 'https://example.com/schemas/example.json',
               type: 'object',
               properties: {
-                bal: { '$ref': 'https://example.com/schemas/example.json' },
+                bal: {
+                  anyOf: [
+                    { type: 'null' },
+                    { '$ref': 'https://example.com/schemas/example.json' },
+                  ],
+                },
                 bam: {
                   type: 'array',
                   items: {
                     allOf: [{ type: 'string' }, { type: 'number' }],
                   },
                 },
-                bar: { type: 'number' },
+                bar: {
+                  anyOf: [
+                    { type: 'null' },
+                    { type: 'number' },
+                  ],
+                },
                 baz: { enum: [1, 'a', nil] },
                 foo: { type: 'string' },
               },
@@ -150,42 +136,36 @@ RSpec.describe(JsonModel::Schema) do
     end
 
     it('collects local references in $defs') do
-      klass.property(
+      klass.attribute(
         :foo,
-        type: Class.new do
+        Class.new(Dry::Struct) do
           include(JsonModel::Schema)
 
-          property(:foo, type: String)
+          attribute(:foo, JsonModel::Types::String)
         end,
       )
-      klass.property(
+      klass.attribute(
         :bam,
-        type: JsonModel::Types.object(
-          Class.new do
-            include(JsonModel::Schema)
+        Class.new(Dry::Struct) do
+          include(JsonModel::Schema)
 
-            property(:bam, type: String)
-            schema_id('https://example.com/schemas/bam.json')
-          end,
-        )
-                              .with_ref_mode(JsonModel::RefMode::EXTERNAL),
+          schema_id('https://example.com/schemas/bam.json')
+          attribute(:bam, JsonModel::Types::String)
+        end.external,
       )
-      klass.property(
+      klass.attribute(
         :bar,
-        type: JsonModel::Types.array(
-          JsonModel::Types.array(
-            JsonModel::Types.object(
-              Class.new do
-                include(JsonModel::Schema)
+        JsonModel::Types::Array.of(
+          JsonModel::Types::Array.of(
+            Class.new(Dry::Struct) do
+              include(JsonModel::Schema)
 
-                property(:bar, type: String)
+              attribute(:bar, JsonModel::Types::String)
 
-                def self.name
-                  'Bar'
-                end
-              end,
-            )
-                            .as_local_ref,
+              def self.name
+                'Bar'
+              end
+            end.local,
           ),
         ),
       )
@@ -227,20 +207,20 @@ RSpec.describe(JsonModel::Schema) do
       let(:child) do
         Class.new(klass) do
           schema_id('https://example.com/schemas/child.json')
-          property(:baz, type: String)
+          attribute(:baz, JsonModel::Types::String)
         end
       end
       let(:second_child) do
         Class.new(klass) do
           schema_id('https://example.com/schemas/second-child.json')
           title('SecondChild')
-          property(:bar, type: String)
+          attribute(:bar, JsonModel::Types::String)
         end
       end
 
       it('uses $ref for inherited schemas if they have a schema id') do
         klass.schema_id('https://example.com/schemas/example.json')
-        klass.property(:foo, type: String)
+        klass.attribute(:foo, JsonModel::Types::String)
 
         expect(child.as_schema)
           .to(

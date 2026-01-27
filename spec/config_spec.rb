@@ -33,20 +33,6 @@ RSpec.describe(JsonModel::Config) do
     end
   end
 
-  describe('#validate_after_instantiation') do
-    it('defaults to true') do
-      expect(JsonModel.config.validate_after_instantiation)
-        .to(eq(true))
-    end
-
-    it('can be changed to false') do
-      JsonModel.configure { |config| config.validate_after_instantiation = false }
-
-      expect(JsonModel.config.validate_after_instantiation)
-        .to(eq(false))
-    end
-  end
-
   describe('#schema_id_base_uri') do
     it('defaults to nil') do
       expect(JsonModel.config.schema_id_base_uri)
