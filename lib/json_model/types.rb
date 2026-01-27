@@ -1,51 +1,51 @@
 # frozen_string_literal: true
 
-require_relative('types/constraint')
-require_relative('types/builder')
-require_relative('types/type')
-
-require_relative('types/array')
-require_relative('types/castable')
-require_relative('types/composition')
-require_relative('types/const')
-require_relative('types/enum')
-require_relative('types/object')
-require_relative('types/primitive')
+require('resolv')
+require_relative('types/alias')
+require_relative('types/any_of')
+require_relative('types/one_of')
+require_relative('types/ref')
 
 module JsonModel
   module Types
-    TYPE_MAP = {
-      ::Date => Types.date,
-      ::DateTime => Types.date_time,
-      ::FalseClass => Types.boolean,
-      ::Float => Types.number,
-      ::Integer => Types.integer,
-      ::NilClass => Types.null,
-      ::Regexp => Types.regexp,
-      ::String => Types.string,
-      ::Time => Types.time,
-      ::TrueClass => Types.boolean,
-      ::URI => Types.uri,
-    }.freeze
+    include(Dry.Types())
 
-    class << self
-      # @param [::Object, Class] type
-      # @return [Types::Type]
-      def resolve(type)
-        if type.is_a?(Types::Type)
-          return type
-        end
+    Date = Dry::Types['date'].meta(format: 'date')
 
-        if TYPE_MAP.key?(type)
-          TYPE_MAP[type]
-        elsif type.is_a?(Class) && type < Schema
-          Types::Object.new(type)
-        elsif type.is_a?(Types::Type) || (type.is_a?(Class) && type < Types::Type)
-          type
-        else
-          raise(ArgumentError, "Unsupported type: #{type}")
-        end
-      end
-    end
+    DateTime = Dry::Types['date_time'].meta(format: 'date-time')
+
+    Email = String.constrained(format: URI::MailTo::EMAIL_REGEXP).meta(format: 'email')
+
+    Hostname = String.constrained(
+      format: /(?i)^(?:([a-z0-9-]+|\*)\.)?([a-z0-9-]{1,61})\.([a-z0-9]{2,7})$/,
+    ).meta(format: 'hostname')
+
+    IPv4 = String.constrained(
+      format: ::Resolv::IPv4::Regex,
+    ).meta(format: 'ipv4')
+
+    IPv6 = String.constrained(
+      format: ::Resolv::IPv6::Regex,
+    ).meta(format: 'ipv6')
+
+    Time = Dry::Types['time'].meta(format: 'time')
+
+    UUID = String.constrained(
+      format: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+    ).meta(format: 'uuid')
+
+    URI = String.constrained(
+      format: ::URI::DEFAULT_PARSER.make_regexp,
+    ).meta(format: 'uri')
+
+    UriReference = String.constrained(
+      format: %r{^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?},
+    ).meta(format: 'uri-reference')
+
+    Regex = String.constrained(
+      format: %r{\A(/?)(.+)\1([a-z]*)\z}i,
+    ).meta(format: 'regex')
+
+    UniqueArray = Array.constrained(unique: true)
   end
 end
