@@ -1,684 +1,268 @@
-# JSON Model
+# JsonModel
 
 [![Gem Version](https://badge.fury.io/rb/json_model_rb.svg)](https://badge.fury.io/rb/json_model_rb)
 [![Ruby](https://github.com/gillesbergerp/json_model_rb/actions/workflows/ci.yml/badge.svg)](https://github.com/gillesbergerp/json_model_rb/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A Ruby DSL for building JSON Schema definitions with a clean, declarative syntax. Define your schemas in Ruby and generate complete, standards-compliant JSON Schema documents.
+`JsonModel` is a Ruby gem that extends `Dry::Struct` with JSON Schema generation capabilities. It allows you to define robust data models using `dry-types` and `dry-struct` and automatically generate their corresponding JSON Schema (Draft 7).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'json_model'
+gem 'json_model_rb'
 ```
 
 And then execute:
 
-```bash
-bundle install
-```
+    $ bundle install
 
-Or install it yourself as:
+## Basic Usage
 
-```bash
-gem install json_model
-```
-
-## Quick Start
+To use `JsonModel`, include the `JsonModel::Schema` module in your `Dry::Struct` classes.
 
 ```ruby
 require 'json_model'
 
-class User
+class User < Dry::Struct
   include JsonModel::Schema
 
+  attribute :name, JsonModel::Types::String
+  attribute :email, JsonModel::Types::Email
+  attribute? :age, JsonModel::Types::Integer.optional
+end
+
+# Generate JSON Schema
+puts User.as_schema
+# {
+#   :type=>"object",
+#   :properties=>{
+#     :name=>{:type=>"string"},
+#     :email=>{:type=>"string", :format=>"email"},
+#     :age=>{:anyOf=>[{:type=>"null"}, {:type=>"integer"}]}
+#   },
+#   :required=>[:email, :name]
+# }
+```
+
+## Types and Formats
+
+`JsonModel` provides a set of predefined types in `JsonModel::Types` that map directly to JSON Schema types and formats.
+
+### Primitive Types
+
+Most `Dry::Types` are automatically mapped to their JSON Schema equivalents:
+
+| Dry::Type | JSON Schema Type |
+| :--- | :--- |
+| `JsonModel::Types::String` | `string` |
+| `JsonModel::Types::Integer` | `integer` |
+| `JsonModel::Types::Float` | `number` |
+| `JsonModel::Types::Bool` | `boolean` |
+| `JsonModel::Types::Nil` | `null` |
+
+### Format Types
+
+`JsonModel` includes specialized string types with `format` metadata:
+
+- `JsonModel::Types::Email`: `format: 'email'`
+- `JsonModel::Types::UUID`: `format: 'uuid'`
+- `JsonModel::Types::URI`: `format: 'uri'`
+- `JsonModel::Types::Date`: `format: 'date'`
+- `JsonModel::Types::DateTime`: `format: 'date-time'`
+- `JsonModel::Types::IPv4`: `format: 'ipv4'`
+- `JsonModel::Types::IPv6`: `format: 'ipv6'`
+- `JsonModel::Types::Hostname`: `format: 'hostname'`
+
+### Collection Types
+
+- `JsonModel::Types::Array.of(Type)`: Mapped to `type: 'array'` with `items`.
+- `JsonModel::Types::UniqueArray`: An array with `uniqueItems: true`.
+
+### Constrained Types
+
+`JsonModel` respects many `dry-types` constraints:
+
+```ruby
+attribute :age, JsonModel::Types::Integer.constrained(gteq: 18, lteq: 99)
+# JSON Schema: { "type": "integer", "minimum": 18, "maximum": 99 }
+
+attribute :code, JsonModel::Types::String.constrained(format: /\A[A-Z]+\z/)
+# JSON Schema: { "type": "string", "pattern": "^[A-Z]+$" }
+```
+
+## Advanced Types and Builders
+
+`JsonModel` shines when dealing with complex data structures like references and polymorphic types.
+
+### Local and External References
+
+When a schema refers to another `JsonModel::Schema`, you can use `local` or `external` references to control how the `$ref` is generated.
+
+#### Local References
+
+Use `.local` to generate a relative `$ref` to a definition within the same schema document. This will also add the referenced schema to the `$defs` (or `definitions`) section.
+
+```ruby
+class Address < Dry::Struct
+  include JsonModel::Schema
+  attribute :city, JsonModel::Types::String
+end
+
+class User < Dry::Struct
+  include JsonModel::Schema
+  # Generates "$ref": "#/$defs/Address"
+  attribute :address, Address.local
+end
+```
+
+#### External References
+
+Use `.external` to generate an absolute `$ref` using the schema's `$id`. This is useful when you want to refer to a schema that is defined in another file or hosted at a specific URL.
+
+```ruby
+class RemoteUser < Dry::Struct
+  include JsonModel::Schema
+  
   schema_id "https://example.com/schemas/user.json"
-  title "User"
-  description "A registered user in the system"
-
-  property :name, type: String
-  property :email, type: String, format: :email
-  property :age, type: Integer, minimum: 0, maximum: 120, optional: true
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(User.as_schema)
-```
-
-**Output:**
-```json
-{
-  "$id": "https://example.com/schemas/user.json",
-  "additionalProperties": false,
-  "title": "User",
-  "description": "A registered user in the system",
-  "properties": {
-    "age": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 120
-    },
-    "email": {
-      "type": "string",
-      "format": "email"
-    },
-    "name": {
-      "type": "string"
-    }
-  },
-  "required": [
-    {
-      "json_class": "Symbol",
-      "s": "email"
-    },
-    {
-      "json_class": "Symbol",
-      "s": "name"
-    }
-  ],
-  "type": "object"
-}
-```
-
-## Schema Metadata
-
-You can set top-level schema metadata properties directly in your schema class:
-
-```ruby
-class Product
-  include JsonModel::Schema
-
-  # Schema metadata
-  schema_id "https://api.example.com/schemas/product.json"
-  schema_version :draft_2020_12
-  title "Product"
-  description "A product available in the catalog"
   
-  # Properties
-  property :id, type: String
-  property :name, type: String
-  property :price, type: T::Float[minimum: 0]
-  property :available, type: JsonModel::Types.boolean, default: true, optional: true
+  attribute :name, JsonModel::Types::String
+end
+
+class Profile < Dry::Struct
+  include JsonModel::Schema
+  # Generates "$ref": "https://example.com/schemas/user.json"
+  attribute :user, RemoteUser.external
 end
 ```
 
-### Available Metadata Keywords
+### Composition and Polymorphism
 
-- **`schema_id`** - Sets the `$id` (unique URI identifier for the schema)
-- **`schema_version`** - Sets the `$schema` (JSON Schema version)
-- **`title`** - Human-readable title for the schema
-- **`description`** - Detailed explanation of the schema's purpose
-- **`additional_properties`** - Whether additional properties are allowed (default: `false`)
+`JsonModel` supports complex type compositions using standard `dry-types` operators and specialized polymorphic builders.
 
-## Data Types
+#### Sum Types (`anyOf`)
 
-### String Type
+Simple sum types using the `|` operator are mapped to JSON Schema `anyOf`.
 
 ```ruby
-class StringExample
+attribute :id, JsonModel::Types::Integer | JsonModel::Types::String
+# JSON Schema: { "anyOf": [{ "type": "integer" }, { "type": "string" }] }
+```
+
+#### Intersection Types (`allOf`)
+
+Intersection types using the `&` operator are mapped to JSON Schema `allOf`. This is useful for combining multiple sets of constraints or schemas.
+
+```ruby
+Email = JsonModel::Types::String.constrained(format: /@/)
+Unique = JsonModel::Types::String.constrained(min_size: 5)
+
+attribute :contact, Email & Unique
+# JSON Schema: { "allOf": [{ "type": "string", "pattern": "@" }, { "type": "string", "minLength": 5 }] }
+```
+
+#### Polymorphic Types (`oneOf` / `anyOf`)
+
+For more advanced polymorphic structures, especially tagged unions, `JsonModel` provides `one_of` and `any_of` builders. This is ideal for APIs that return different object types based on a "discriminator" field (e.g., `type` or `kind`).
+
+```ruby
+Circle = Class.new(Dry::Struct) do
+  include JsonModel::Schema
+  attribute :radius, JsonModel::Types::Float
+end
+
+Square = Class.new(Dry::Struct) do
+  include JsonModel::Schema
+  attribute :side, JsonModel::Types::Float
+end
+
+Shape = JsonModel::Types.one_of(:type) do
+  on :circle, Circle
+  on :square, Square
+end
+
+class Canvas < Dry::Struct
+  include JsonModel::Schema
+  attribute :shapes, JsonModel::Types::Array.of(Shape)
+end
+```
+
+### Builders
+
+Internally, `JsonModel` uses a "Builder" pattern to translate `Dry::Types` into JSON Schema fragments. Every type registered in `JsonModel::Builder` has a corresponding builder class (e.g., `StringBuilder`, `ArrayBuilder`, `RefBuilder`).
+
+You can inspect how a specific type will be rendered:
+```ruby
+builder = JsonModel::Builder.for(JsonModel::Types::Email)
+builder.as_schema # => { type: 'string', format: 'email' }
+```
+
+## JSON Schema Features Supported
+
+- `type` (string, number, integer, boolean, object, array, null)
+- `properties` and `required`
+- `enum` (via `Dry::Types::String.enum(...)`)
+- `default` values
+- `pattern` (via Regexp constraints)
+- `minimum`, `maximum`, `exclusiveMinimum`, `exclusiveMaximum`
+- `minLength`, `maxLength`
+- `minItems`, `maxItems`, `uniqueItems`
+- `anyOf`, `oneOf`, `allOf` (Sum and Intersection types)
+- `$ref` and `$defs` for nested schemas
+
+## Configuration
+
+You can configure global options for `JsonModel`, such as naming strategies for properties and schema IDs.
+
+### Attribute Naming and Strategies
+
+By default, JSON property names match the attribute names defined in your `Dry::Struct`. However, you can customize this globally or per attribute.
+
+#### Global Property Naming Strategy
+
+You can set a global strategy to automatically transform attribute names (which are usually snake_case in Ruby) to a different format in the JSON Schema (e.g., camelCase).
+
+```ruby
+JsonModel.configure do |config|
+  # Available strategies: :identity (default), :camel_case, :pascal_case
+  config.property_naming_strategy = :camel_case
+end
+```
+
+| Strategy | Ruby Attribute | JSON Property |
+| :--- | :--- | :--- |
+| `:identity` | `user_id` | `user_id` |
+| `:camel_case` | `user_id` | `userId` |
+| `:pascal_case` | `user_id` | `UserId` |
+
+#### Explicit Aliasing
+
+You can override the global strategy for a specific attribute using the `.as(key)` method on the type.
+
+```ruby
+class User < Dry::Struct
   include JsonModel::Schema
 
-  # Basic string
-  property :simple_string, type: String
-
-  # String with length constraints
-  property :username, type: JsonModel::Types.string[min_length: 3, max_length: 20]
-
-  # String with pattern (regex)
-  property :product_code, type: JsonModel::Types.string.pattern(/\A[A-Z]{3}-\d{4}\z/)
-
-  # String with format
-  property :email, type: JsonModel::Types.string.format(:email)
-  property :uri, type: JsonModel::Types.string.format(:uri)
-  property :hostname, type: JsonModel::Types.string.format(:hostname)
-  property :ipv4, type: JsonModel::Types.string.format(:ipv4)
-  property :ipv6, type: JsonModel::Types.string.format(:ipv6)
-  property :uuid, type: JsonModel::Types.string.format(:uuid)
-  property :date, type: JsonModel::Types.string.format(:date)
-  property :time, type: JsonModel::Types.string.format(:time)
-  property :datetime, type: JsonModel::Types.string.format(:date_time)
-  property :duration, type: JsonModel::Types.string.format(:duration)
+  # Forces the JSON property name to be 'ID' regardless of global strategy
+  attribute :id, JsonModel::Types::Integer.as(:ID)
   
-  # String with enum
-  property :status, T::Enum["draft", "published", "archived"]
-  
-  # String with const
-  property :api_version, T::Const["v1"]
-  
-  # Optional string
-  property :nickname, type: String, optional: true
+  # Also works via meta
+  attribute :email, JsonModel::Types::String.meta(as: :emailAddress)
 end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(StringExample.as_schema)
 ```
 
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "properties": {
-    "date": {
-      "type": "string",
-      "format": "date"
-    },
-    "datetime": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "duration": {
-      "type": "string",
-      "format": "duration"
-    },
-    "email": {
-      "type": "string",
-      "format": "email"
-    },
-    "hostname": {
-      "type": "string",
-      "format": "hostname"
-    },
-    "ipv4": {
-      "type": "string",
-      "format": "ipv4"
-    },
-    "ipv6": {
-      "type": "string",
-      "format": "ipv6"
-    },
-    "product_code": {
-      "type": "string",
-      "pattern": "\\A[A-Z]{3}-\\d{4}\\z"
-    },
-    "simple_string": {
-      "type": "string"
-    },
-    "time": {
-      "type": "string",
-      "format": "time"
-    },
-    "uri": {
-      "type": "string",
-      "format": "uri"
-    },
-    "username": {
-      "type": "string",
-      "minLength": 3,
-      "maxLength": 20
-    },
-    "uuid": {
-      "type": "string",
-      "format": "uuid"
-    }
-  },
-  "required": [
-    "date",
-    "datetime",
-    "duration",
-    "email",
-    "hostname",
-    "ipv4",
-    "ipv6",
-    "product_code",
-    "simple_string",
-    "time",
-    "uri",
-    "username",
-    "uuid"
-  ],
-  "type": "object"
-}
-```
+#### Schema ID Naming Strategy
 
-### Number and Integer Types
+Similarly, you can configure how `$id` is automatically generated for schemas if not explicitly provided.
 
 ```ruby
-class NumericExample
-  include JsonModel::Schema
-
-  # Integer
-  property :count, type: Integer
-
-  # Integer with range
-  property :port, type: T::Integer[minimum: 1024, maximum: 65535]
-
-  # Integer with exclusive bounds
-  property :positive_int, type: T::Integer[exclusive_minimum: 0]
-
-  # Number (float/double)
-  property :price, type: T::Number[minimum: 0]
-
-  # Number with multiple_of
-  property :quantity, type: T::Integer[multiple_of: 10]
-
-  # Number with precision
-  property :temperature, type: T::Number[minimum: -273.15, maximum: 1000.0]
-  
-  # Optional number
-  property :discount, type: Float, optional: true
+JsonModel.configure do |config|
+  # Available strategies: :none (default), :class_name, :kebab_case_class_name, :snake_case_class_name
+  config.schema_id_naming_strategy = :kebab_case_class_name
+  config.schema_id_base_uri = "https://api.example.com/schemas/"
 end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(NumericExample.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "properties": {
-    "count": {
-      "type": "integer"
-    },
-    "discount": {
-      "type": "number"
-    },
-    "port": {
-      "type": "integer",
-      "minimum": 1024,
-      "maximum": 65535
-    },
-    "positive_int": {
-      "type": "integer",
-      "exclusiveMinimum": 0
-    },
-    "price": {
-      "type": "number",
-      "minimum": 0
-    },
-    "quantity": {
-      "type": "integer",
-      "multipleOf": 10
-    },
-    "temperature": {
-      "type": "number",
-      "minimum": -273.15,
-      "maximum": 1000.0
-    }
-  },
-  "required": [
-    "count",
-    "port",
-    "positive_int",
-    "price",
-    "quantity",
-    "temperature"
-  ],
-  "type": "object"
-}
-```
-
-### Boolean Type
-
-```ruby
-class BooleanExample
-  include JsonModel::Schema
-
-  property :is_active, type: JsonModel::Types.boolean
-  property :has_agreed, type: JsonModel::Types.boolean, default: false
-  property :enabled, type: JsonModel::Types.boolean, optional: true
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(BooleanExample.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "properties": {
-    "enabled": {
-      "type": "boolean"
-    },
-    "has_agreed": {
-      "type": "boolean",
-      "default": false
-    },
-    "is_active": {
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "has_agreed",
-    "is_active"
-  ],
-  "type": "object"
-}
-```
-
-### Array Type
-
-```ruby
-class ArrayExample
-  include JsonModel::Schema
-
-  # Simple array
-  property :tags, type: JsonModel::Types.array(String)
-
-  # Array with constraints
-  property :numbers, type: JsonModel::Types.array(Integer).min_items(1).max_items(10).unique_items
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(ArrayExample.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "properties": {
-    "numbers": {
-      "type": "array",
-      "items": {
-        "type": "integer"
-      },
-      "minItems": 1,
-      "maxItems": 10,
-      "uniqueItems": true
-    },
-    "tags": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    }
-  },
-  "required": [
-    "numbers",
-    "tags"
-  ],
-  "type": "object"
-}
-```
-
-## Schema Composition
-
-JSON Model supports powerful schema composition using `T::AllOf`, `T::AnyOf`, and `T::OneOf`:
-
-### AllOf - Must Match All Schemas
-
-Use `T::AllOf` when a value must validate against all provided schemas (intersection/combining schemas):
-
-```ruby
-class PersonBase
-  include JsonModel::Schema
-
-  property :name, type: String
-  property :age, type: T::Integer[minimum: 0], optional: true
-end
-
-class EmployeeDetails
-  include JsonModel::Schema
-
-  property :employee_id, type: JsonModel::Types.string.pattern(/\AE-\d{4}\z/)
-  property :department, type: String
-  property :salary, type: T::Number[minimum: 0], optional: true
-end
-
-class Employee
-  include JsonModel::Schema
-
-  title "Employee"
-  description "Combines person and employee-specific properties"
-
-  property :employee, type: T::AllOf[PersonBase, EmployeeDetails]
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(Employee.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "title": "Employee",
-  "description": "Combines person and employee-specific properties",
-  "properties": {
-    "employee": {
-      "allOf": [
-        {
-          "additionalProperties": false,
-          "properties": {
-            "age": {
-              "type": "integer",
-              "minimum": 0
-            },
-            "name": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "name"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
-            "department": {
-              "type": "string"
-            },
-            "employee_id": {
-              "type": "string",
-              "pattern": "\\AE-\\d{4}\\z"
-            },
-            "salary": {
-              "type": "number",
-              "minimum": 0
-            }
-          },
-          "required": [
-            "department",
-            "employee_id"
-          ],
-          "type": "object"
-        }
-      ]
-    }
-  },
-  "required": [
-    "employee"
-  ],
-  "type": "object"
-}
-```
-
-### AnyOf - Must Match At Least One Schema
-
-Use `T::AnyOf` when a value must validate against one or more schemas (union/alternatives):
-
-```ruby
-class EmailContact
-  include JsonModel::Schema
-
-  property :email, type: String, format: :email
-end
-
-class PhoneContact
-  include JsonModel::Schema
-
-  property :phone, type: JsonModel::Types.string.pattern(/\A\+?[1-9]\\d{1,14}\z/)
-end
-
-class AddressContact
-  include JsonModel::Schema
-
-  property :street, type: String
-  property :city, type: String
-end
-
-class Contact
-  include JsonModel::Schema
-
-  title "Contact Method"
-  description "Must provide at least one contact method"
-
-  property :contact, type: T::AnyOf[EmailContact, PhoneContact, AddressContact]
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(Contact.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "title": "Contact Method",
-  "description": "Must provide at least one contact method",
-  "properties": {
-    "contact": {
-      "anyOf": [
-        {
-          "additionalProperties": false,
-          "properties": {
-            "email": {
-              "type": "string",
-              "format": "email"
-            }
-          },
-          "required": [
-            "email"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
-            "phone": {
-              "type": "string",
-              "pattern": "\\A\\+?[1-9]\\\\d{1,14}\\z"
-            }
-          },
-          "required": [
-            "phone"
-          ],
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "properties": {
-            "city": {
-              "type": "string"
-            },
-            "street": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "city",
-            "street"
-          ],
-          "type": "object"
-        }
-      ]
-    }
-  },
-  "required": [
-    "contact"
-  ],
-  "type": "object"
-}
-```
-
-### OneOf - Must Match Exactly One Schema
-
-Use `T::OneOf` when a value must validate against exactly one schema (exclusive alternatives):
-
-```ruby
-class CreditCardPayment
-  include JsonModel::Schema
-
-  property :payment_type, T::Const["credit_card"]
-  property :card_number, type: JsonModel::Types.string.pattern(/\A\d{16}\z/)
-  property :cvv, type: JsonModel::Types.string.pattern(/\A\d{3,4}\z/)
-  property :expiry, type: JsonModel::Types.string.pattern(/\A\d{2}\/\d{2}\z/)
-end
-
-class PayPalPayment
-  include JsonModel::Schema
-
-  property :payment_type, T::Const["paypal"]
-  property :paypal_email, type: JsonModel::Types.string.format(:email)
-end
-
-class BankTransferPayment
-  include JsonModel::Schema
-
-  property :payment_type, type: T::Const["bank_transfer"]
-  property :iban, type: JsonModel::Types.string.pattern("^[A-Z]{2}\\d{2}[A-Z0-9]+$")
-  property :swift, type: String, optional: true
-end
-
-class PaymentMethod
-  include JsonModel::Schema
-
-  title "Payment Method"
-  description "Must specify exactly one payment method"
-
-  property :payment, type: T::OneOf[CreditCardPayment, PayPalPayment, BankTransferPayment], discriminator: :payment_type
-end
-
-# Generate the JSON Schema
-puts JSON.pretty_generate(PaymentMethod.as_schema)
-```
-
-**Output:**
-```json
-{
-  "additionalProperties": false,
-  "title": "Payment Method",
-  "description": "Must specify exactly one payment method",
-  "properties": {
-    "payment": {
-      "oneOf": [
-        {
-          "additionalProperties": false,
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "type": "object"
-        },
-        {
-          "additionalProperties": false,
-          "type": "object"
-        }
-      ]
-    }
-  },
-  "required": [
-    "payment"
-  ],
-  "type": "object"
-}
-```
-
-## Use Cases
-
-- **API Documentation**: Generate JSON schemas for API request/response validation
-- **Configuration Files**: Define and validate application configuration schemas
-- **Data Validation**: Validate incoming data against defined schemas
-- **Code Generation**: Use schemas to generate code in other languages
-- **OpenAPI/Swagger**: Generate OpenAPI schema definitions for your APIs
-- **Form Generation**: Generate forms from schema definitions
-
-## Resources
-
-- [JSON Schema Specification](https://json-schema.org/)
-- [Understanding JSON Schema](https://json-schema.org/understanding-json-schema/)
-- [JSON Schema Validator](https://www.jsonschemavalidator.net/)
-- [Draft 7 Reference](https://json-schema.org/draft-07/json-schema-release-notes.html)
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Credits
-
-Developed and maintained by [gillesbergerp](https://github.com/gillesbergerp).

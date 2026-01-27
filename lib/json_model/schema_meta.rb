@@ -16,8 +16,7 @@ module JsonModel
       # @param [Class] subclass
       def self.inherited(subclass)
         super
-        subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(subclass))
-        subclass.schema_version(JsonModel.config.schema_version)
+        subclass.meta_attributes.merge!(meta_attributes.dup)
         subclass.meta_attributes[:$ref] = schema_id
       end
 
@@ -26,11 +25,6 @@ module JsonModel
     end
 
     class_methods do
-      # @return [Hash]
-      def meta_attributes
-        @meta_attributes ||= {}
-      end
-
       # @param [String, nil] description
       # @return [String, nil]
       def description(description = nil)
@@ -61,26 +55,6 @@ module JsonModel
         end
       end
 
-      # @param [Boolean, nil] value
-      # @return [TrueClass, FalseClass]
-      def additional_properties(value = nil)
-        if value.nil?
-          meta_attributes[:additionalProperties] || false
-        else
-          meta_attributes[:additionalProperties] = value
-        end
-      end
-
-      # @param [Boolean, nil] value
-      # @return [TrueClass, FalseClass]
-      def unevaluated_properties(value = nil)
-        if value.nil?
-          meta_attributes[:unevaluatedProperties] || false
-        else
-          meta_attributes[:unevaluatedProperties] = value
-        end
-      end
-
       # @param [Symbol, nil] version
       # @return [TrueClass, FalseClass]
       def schema_version(version = nil)
@@ -89,6 +63,12 @@ module JsonModel
         else
           meta_attributes[:$schema] = SCHEMA_VERSIONS[version]
         end
+      end
+
+      # @return [Hash]
+      def meta_attributes
+        @meta_attributes ||=  {}
+        @meta_attributes.merge!({ unevaluatedProperties: @schema&.strict? ? false : nil }.compact)
       end
     end
   end

@@ -6,67 +6,87 @@ RSpec.describe('File system schema') do
   before do
     stub_const(
       'DiskDevice',
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
-        property(:type, type: JsonModel::Types.const('disk'))
-        property(:device, type: JsonModel::Types.string.pattern(%r{\A/dev/[^/]+(/[^/]+)*\z}))
+        def self.name
+          'DiskDevice'
+        end
+
+        attribute(:type, JsonModel::Types::String.constrained(eql: 'disk'))
+        attribute(:device, JsonModel::Types::String.constrained(format: %r{\A/dev/[^/]+(/[^/]+)*\z}).as(:Device))
       end,
     )
 
     stub_const(
       'DiskUuid',
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
-        property(:type, type: JsonModel::Types.enum('diskUUID', 'diskuuid'))
-        property(
+        def self.name
+          'DiskUuid'
+        end
+
+        attribute(:type, JsonModel::Types::String.enum('diskUUID', 'diskuuid'))
+        attribute(
           :label,
-          type: JsonModel::Types.string.pattern(/\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/),
+          JsonModel::Types::String.constrained(
+            format: /\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/,
+          ),
         )
       end,
     )
 
     stub_const(
       'Nfs',
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
-        property(:type, type: JsonModel::Types.const('nfs'))
-        property(:remote_path, type: JsonModel::Types.string.pattern(%r{\A(/[^/]+)+\z}), as: :remotePath)
-        property(:server, type: JsonModel::Types.string.format(:ipv4))
+        def self.name
+          'Nfs'
+        end
+
+        attribute(:type, JsonModel::Types::String.constrained(eql: 'nfs'))
+        attribute(:remote_path, JsonModel::Types::String.constrained(format: %r{\A(/[^/]+)+\z}).as(:remotePath))
+        attribute(:server, JsonModel::Types::IPv4)
       end,
     )
 
     stub_const(
       'Tmpfs',
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
-        property(:type, type: JsonModel::Types.const('tmpfs'))
-        property(:size_in_mb, type: JsonModel::Types.integer.minimum(16).maximum(512), as: :sizeInMB)
+        def self.name
+          'Tmpfs'
+        end
+
+        attribute(:type, JsonModel::Types::String.constrained(eql: 'tmpfs'))
+        attribute(:size_in_mb, JsonModel::Types::Integer.constrained(gteq: 16, lteq: 512).as(:sizeInMB))
       end,
     )
 
     stub_const(
       'Fstab',
-      Class.new do
+      Class.new(Dry::Struct) do
         include(JsonModel::Schema)
 
         description('JSON Schema for an fstab entry')
-        property(
+        attribute(
           :storage,
-          type: JsonModel::Types.one_of(
-            JsonModel::Types.object(DiskDevice).with_ref_mode(JsonModel::RefMode::LOCAL),
-            JsonModel::Types.object(DiskUuid).with_ref_mode(JsonModel::RefMode::LOCAL),
-            JsonModel::Types.object(Nfs).with_ref_mode(JsonModel::RefMode::LOCAL),
-            JsonModel::Types.object(Tmpfs).with_ref_mode(JsonModel::RefMode::LOCAL),
-            discriminator: :type,
-          ),
+          JsonModel::Types.one_of(:type) do
+            on('diskUUID', 'diskuuid', DiskUuid.local)
+            on('nfs', Nfs.local)
+            on('tmpfs', Tmpfs.local)
+            on('disk', DiskDevice.local)
+          end,
         )
-        property(:fstype, type: JsonModel::Types.enum('ext3', 'ext4', 'btrfs').optional)
-        property(:options, type: JsonModel::Types.array(String).min_items(1).unique_items.optional)
-        property(:readonly, type: JsonModel::Types.boolean.optional)
+        attribute(:fstype, JsonModel::Types::String.enum('ext3', 'ext4', 'btrfs'))
+        attribute(
+          :options,
+          JsonModel::Types::Array.of(JsonModel::Types::String).constrained(min_size: 1, unique: true).optional,
+        )
+        attribute?(:readonly, JsonModel::Types::Bool.optional)
       end,
     )
   end
@@ -78,7 +98,7 @@ RSpec.describe('File system schema') do
           {
             description: 'JSON Schema for an fstab entry',
             type: 'object',
-            required: %i(storage),
+            required: %i(fstype storage),
             properties: {
               storage: {
                 oneOf: [
@@ -92,15 +112,23 @@ RSpec.describe('File system schema') do
                 enum: %w(ext3 ext4 btrfs),
               },
               options: {
-                type: 'array',
-                minItems: 1,
-                items: {
-                  type: 'string',
-                },
-                uniqueItems: true,
+                anyOf: [
+                  { type: 'null' },
+                  {
+                    type: 'array',
+                    minItems: 1,
+                    items: {
+                      type: 'string',
+                    },
+                    uniqueItems: true,
+                  },
+                ],
               },
               readonly: {
-                type: 'boolean',
+                anyOf: [
+                  { type: 'null' },
+                  { type: 'boolean' },
+                ],
               },
             },
             '$defs': {
@@ -108,13 +136,14 @@ RSpec.describe('File system schema') do
                 properties: {
                   type: {
                     const: 'disk',
+                    type: 'string',
                   },
-                  device: {
+                  Device: {
                     type: 'string',
                     pattern: '\\A/dev/[^/]+(/[^/]+)*\\z',
                   },
                 },
-                required: %i(device type),
+                required: %i(Device type),
                 type: 'object',
               },
               DiskUuid: {
@@ -130,7 +159,10 @@ RSpec.describe('File system schema') do
               },
               Nfs: {
                 properties: {
-                  type: { const: 'nfs' },
+                  type: {
+                    const: 'nfs',
+                    type: 'string',
+                  },
                   remotePath: {
                     type: 'string',
                     pattern: '\\A(/[^/]+)+\\z',
@@ -145,7 +177,10 @@ RSpec.describe('File system schema') do
               },
               Tmpfs: {
                 properties: {
-                  type: { const: 'tmpfs' },
+                  type: {
+                    const: 'tmpfs',
+                    type: 'string',
+                  },
                   sizeInMB: { type: 'integer', minimum: 16, maximum: 512 },
                 },
                 required: %i(sizeInMB type),
@@ -159,7 +194,7 @@ RSpec.describe('File system schema') do
 
   it('can instantiate a model') do
     instance = Fstab.new(
-      storage: { device: '/dev/sda1', type: 'disk' },
+      storage: { Device: '/dev/sda1', type: 'disk' },
       fstype: 'ext4',
       options: %w(rw noatime),
     )
