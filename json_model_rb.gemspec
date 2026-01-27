@@ -5,8 +5,9 @@ require_relative('lib/json_model/version')
 Gem::Specification.new do |spec|
   spec.name = 'json_model_rb'
   spec.version = JsonModel::VERSION
-  spec.summary = 'Declarative JSON Schema DSL with Sorbet and ActiveModel integration'
-  spec.description = 'Define JSON schemas as Ruby modules using a DSL'
+  spec.summary = 'Generate JSON Schema from Dry::Struct models'
+  spec.description = 'A gem that extends Dry::Struct with JSON Schema generation capabilities,'\
+                     'supporting standard types, constraints, and polymorphic models.'
   spec.authors = ['Paul Gillesberger']
   spec.email = ['paulgillesberger@live.com']
   spec.files = Dir['lib/**/*.rb'] + Dir['spec/**/*'] + %w(README.md LICENSE)
@@ -18,8 +19,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('rspec', '~> 3.0')
   spec.add_development_dependency('rubocop', '~> 1.82')
   spec.add_development_dependency('rubocop-rspec', '~> 3.8')
-  spec.add_dependency('activemodel', '>= 6.0')
   spec.add_dependency('activesupport', '>= 6.0')
+  spec.add_dependency('dry-struct', '~> 1.6', '>= 1.6.0')
+  spec.add_dependency('dry-types', '~> 1.7', '>= 1.7.1')
+  spec.add_dependency('dry-validation', '~> 1.8', '>= 1.8.0')
 
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
   spec.metadata['rubygems_mfa_required'] = 'true'
