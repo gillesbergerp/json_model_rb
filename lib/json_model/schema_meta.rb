@@ -18,6 +18,7 @@ module JsonModel
         super
         subclass.meta_attributes.merge!(meta_attributes.dup)
         subclass.meta_attributes[:$ref] = schema_id
+        subclass.schema_id(JsonModel.config.schema_id_naming_strategy.call(subclass))
       end
 
       schema_id(JsonModel.config.schema_id_naming_strategy.call(self))
