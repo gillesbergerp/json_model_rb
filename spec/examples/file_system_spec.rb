@@ -4,13 +4,15 @@ require('spec_helper')
 
 RSpec.describe('File system schema') do
   before do
+    uuid_pattern = /\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/
+
     stub_const(
       'DiskDevice',
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Const['disk'])
-        property(:device, type: T::String[pattern: %r{\A/dev/[^/]+(/[^/]+)*\z}])
+        property(:type, type: JsonModel::Types::Const['disk'])
+        property(:device, type: JsonModel::Types::String[pattern: %r{\A/dev/[^/]+(/[^/]+)*\z}])
       end,
     )
 
@@ -19,10 +21,10 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Enum['diskUUID', 'diskuuid'])
+        property(:type, type: JsonModel::Types::Enum['diskUUID', 'diskuuid'])
         property(
           :label,
-          type: T::String[pattern: /\A[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}\z/],
+          type: JsonModel::Types::String[pattern: uuid_pattern],
         )
       end,
     )
@@ -32,9 +34,9 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Const['nfs'])
-        property(:remote_path, type: T::String[pattern: %r{\A(/[^/]+)+\z}], as: :remotePath)
-        property(:server, type: T::String[format: :ipv4])
+        property(:type, type: JsonModel::Types::Const['nfs'])
+        property(:remote_path, type: JsonModel::Types::String[pattern: %r{\A(/[^/]+)+\z}], as: :remotePath)
+        property(:server, type: JsonModel::Types::String[format: :ipv4])
       end,
     )
 
@@ -43,8 +45,8 @@ RSpec.describe('File system schema') do
       Class.new do
         include(JsonModel::Schema)
 
-        property(:type, type: T::Const['tmpfs'])
-        property(:size_in_mb, type: T::Integer[minimum: 16, maximum: 512], as: :sizeInMB)
+        property(:type, type: JsonModel::Types::Const['tmpfs'])
+        property(:size_in_mb, type: JsonModel::Types::Integer[minimum: 16, maximum: 512], as: :sizeInMB)
       end,
     )
 
@@ -56,12 +58,12 @@ RSpec.describe('File system schema') do
         description('JSON Schema for an fstab entry')
         property(
           :storage,
-          type: T::OneOf[DiskDevice, DiskUuid, Nfs, Tmpfs, discriminator: :type],
+          type: JsonModel::Types::OneOf[DiskDevice, DiskUuid, Nfs, Tmpfs, discriminator: :type],
           ref_mode: JsonModel::RefMode::LOCAL,
         )
-        property(:fstype, type: T::Enum['ext3', 'ext4', 'btrfs'], optional: true)
-        property(:options, type: T::Array[String, min_items: 1, unique_items: true], optional: true)
-        property(:readonly, type: T::Boolean, optional: true)
+        property(:fstype, type: JsonModel::Types::Enum['ext3', 'ext4', 'btrfs'], optional: true)
+        property(:options, type: JsonModel::Types::Array[String, min_items: 1, unique_items: true], optional: true)
+        property(:readonly, type: JsonModel::Types::Boolean, optional: true)
       end,
     )
   end

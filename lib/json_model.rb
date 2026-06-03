@@ -2,7 +2,6 @@
 
 require('active_model')
 require('active_support/concern')
-require('active_support/core_ext/class/attribute')
 require('active_support/descendants_tracker')
 require('uri')
 require('json_model/config')
@@ -18,14 +17,23 @@ require('json_model/version')
 
 module JsonModel
   class << self
-    # @return [Config]
-    def configure(&)
-      yield(Config)
+    # @yieldparam [Configuration] config
+    # @return [Configuration]
+    def configure
+      yield(config)
+      config
     end
 
-    # @return [Config]
+    # @return [Configuration]
     def config
-      Config
+      @config ||= Configuration.new
+    end
+
+    # Resets the configuration to its defaults. Primarily useful in tests.
+    # @return [Configuration]
+    def reset_config!
+      config.reset!
+      config
     end
   end
 end

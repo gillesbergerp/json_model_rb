@@ -3,6 +3,14 @@
 module JsonModel
   class TypeSpec
     class Array < TypeSpec
+      # Resolves the element type before instantiating.
+      # @param [Object, Class] type
+      # @param [Hash] options
+      # @return [Array]
+      def self.[](type, **options)
+        new(resolve(type), **options)
+      end
+
       # @param [TypeSpec] type
       # @param [Integer, nil] min_items
       # @param [Integer, nil] max_items
@@ -63,7 +71,7 @@ module JsonModel
         klass.validate do |record|
           duplicates = record.send(name)&.group_by(&:itself)&.select { |_k, v| v.size > 1 }&.keys
           if !duplicates.nil? && duplicates.any?
-            record.errors.add(:tags, :uniqueness, message: "contains duplicates: #{duplicates.join(', ')}")
+            record.errors.add(name, :uniqueness, message: "contains duplicates: #{duplicates.join(', ')}")
           end
         end
       end

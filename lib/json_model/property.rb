@@ -22,11 +22,14 @@ module JsonModel
     # @param [Hash] options
     # @return [Hash]
     def as_schema(**options)
-      {
-        self.alias => type
-                        .as_schema(**options, ref_mode: @ref_mode)
-                        .merge({ default: default }.compact),
-      }
+      schema = type.as_schema(**options, ref_mode: @ref_mode)
+      # A `$ref` is a standalone reference; attaching a default to it is meaningless
+      # (and ignored by most validators), so only inline schemas carry defaults.
+      if !schema.key?(:$ref)
+        schema = schema.merge({ default: default }.compact)
+      end
+
+      { self.alias => schema }
     end
 
     # @param [ActiveModel::Validations]

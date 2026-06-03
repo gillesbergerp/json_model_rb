@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require('set')
+
 module JsonModel
   module Properties
     extend(ActiveSupport::Concern)
@@ -25,6 +27,13 @@ module JsonModel
         @aliased_properties ||= {}
       end
 
+      # Names of the properties declared directly on this class (as opposed to
+      # those inherited from, or propagated by, ancestor schemas).
+      # @return [Set<Symbol>]
+      def local_property_names
+        @local_property_names ||= Set.new
+      end
+
       # @param [Symbol] name
       # @return [Symbol, nil]
       def invert_alias(name)
@@ -39,6 +48,7 @@ module JsonModel
       def property(name, type:, **options)
         resolved_type = TypeSpec.resolve(type)
         add_property(name, type: resolved_type, **options)
+        local_property_names << name
         descendants.each { |subclass| subclass.add_property(name, type: resolved_type, **options) }
       end
 

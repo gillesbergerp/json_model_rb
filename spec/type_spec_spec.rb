@@ -23,7 +23,11 @@ RSpec.describe(JsonModel::TypeSpec) do
     it_behaves_like('primitive type', type: Float, expected_type: JsonModel::TypeSpec::Primitive::Number)
     it_behaves_like('primitive type', type: TrueClass, expected_type: JsonModel::TypeSpec::Primitive::Boolean)
     it_behaves_like('primitive type', type: FalseClass, expected_type: JsonModel::TypeSpec::Primitive::Boolean)
-    it_behaves_like('primitive type', type: JsonModel::TypeSpec::Primitive::String.new, expected_type: JsonModel::TypeSpec::Primitive::String)
+    it_behaves_like(
+      'primitive type',
+      type: JsonModel::TypeSpec::Primitive::String.new,
+      expected_type: JsonModel::TypeSpec::Primitive::String,
+    )
 
     it_behaves_like('unsupported type', Class.new)
     it_behaves_like('unsupported type', Object.new)

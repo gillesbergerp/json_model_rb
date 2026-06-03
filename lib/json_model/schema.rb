@@ -38,7 +38,10 @@ module JsonModel
       # @param [::Object] json
       # @return [::Object, nil]
       def from_json(json)
-        attributes = json.transform_keys { |key| invert_alias(key) || raise_unknown_attribute_error(key) }
+        # Map aliases back to property names; leave unknown keys untouched so that
+        # {#assign_attribute} can decide whether to raise (it already honours
+        # +additional_properties+ and +validate_after_instantiation+).
+        attributes = json.transform_keys { |key| invert_alias(key) || key }
         new(attributes)
       end
 
@@ -104,21 +107,12 @@ module JsonModel
         end
       end
 
-      # @return [Array<Class>]
-      def parent_schemas
-        @parent_schemas ||= ancestors.select { |klass| klass != self && klass < Schema }
-      end
-
+      # The properties declared directly on this class. Inherited properties are
+      # not re-rendered; a subclass instead references its parent via +$ref+ and
+      # only describes its own additions.
       # @return [Hash]
       def local_properties
-        if !defined?(@local_properties)
-          ancestor_properties = parent_schemas.flat_map { |property| property.properties.values }
-          @local_properties = properties.select do |_key, property|
-            ancestor_properties.none? { |ancestor_property| ancestor_property.as_schema == property.as_schema }
-          end
-        end
-
-        @local_properties
+        @local_properties ||= properties.slice(*local_property_names)
       end
     end
   end

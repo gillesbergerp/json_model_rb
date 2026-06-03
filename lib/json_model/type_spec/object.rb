@@ -25,7 +25,11 @@ module JsonModel
       # @param [::Object] json
       # @return [::Object, nil]
       def cast(json)
-        type.from_json(**json)
+        if json.nil?
+          nil
+        else
+          type.from_json(json)
+        end
       end
     end
   end

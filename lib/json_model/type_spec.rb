@@ -46,6 +46,14 @@ module JsonModel
     end
 
     class << self
+      # Builds a type spec instance. This is the DSL entry point behind the
+      # friendly aliases in {JsonModel::Types} (e.g. +Types::String[min_length: 3]+).
+      # @return [TypeSpec]
+      def [](...)
+        new(...)
+      end
+
+      # Coerces a user-supplied +type:+ into a {TypeSpec} instance.
       # @param [Object, Class] type
       # @return [TypeSpec]
       def resolve(type)
@@ -55,23 +63,7 @@ module JsonModel
 
         if TYPE_MAP.key?(type)
           TYPE_MAP[type]
-        elsif type.respond_to?(:to_type_spec)
-          type.to_type_spec
         elsif type.is_a?(Class) && type < Schema
-          TypeSpec::Object.new(type)
-        else
-          raise(ArgumentError, "Unsupported type: #{type}")
-        end
-      end
-
-      private
-
-      # @param [Object, Class] type
-      # @return [TypeSpec]
-      def resolve_type_from_class(type)
-        if TYPE_MAP.key?(type)
-          TYPE_MAP[type]
-        elsif type < Schema
           TypeSpec::Object.new(type)
         else
           raise(ArgumentError, "Unsupported type: #{type}")

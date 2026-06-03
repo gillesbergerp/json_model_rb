@@ -5,12 +5,12 @@ require_relative('lib/json_model/version')
 Gem::Specification.new do |spec|
   spec.name = 'json_model_rb'
   spec.version = JsonModel::VERSION
-  spec.summary = 'Declarative JSON Schema DSL with Sorbet and ActiveModel integration'
-  spec.description = 'Define JSON schemas as Ruby modules using a DSL'
+  spec.summary = 'Declarative JSON Schema DSL with ActiveModel integration'
+  spec.description = 'Define JSON Schema documents declaratively from Ruby classes using a DSL.'
   spec.authors = ['Paul Gillesberger']
   spec.email = ['paulgillesberger@live.com']
   spec.files = Dir['lib/**/*.rb'] + Dir['spec/**/*'] + %w(README.md LICENSE)
-  spec.homepage = 'https://github.com/gillesbergerp/json_model'
+  spec.homepage = 'https://github.com/gillesbergerp/json_model_rb'
   spec.license = 'MIT'
 
   spec.required_ruby_version = '>= 3.1'

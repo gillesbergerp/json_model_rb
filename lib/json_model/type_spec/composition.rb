@@ -5,6 +5,13 @@ module JsonModel
     class Composition < TypeSpec
       attr_reader(:types, :modifier, :discriminator)
 
+      # Resolves each member type before instantiating the concrete composition
+      # (e.g. +Types::AllOf[Foo, Bar]+). Inherited by {AllOf}, {AnyOf} and {OneOf}.
+      # @return [Composition]
+      def self.[](*types, **options)
+        new(*types.map { |type| resolve(type) }, **options)
+      end
+
       # @param [Symbol] modifier
       # @param [::Array<TypeSpec>] types
       def initialize(modifier, *types, discriminator: nil)
@@ -42,22 +49,28 @@ module JsonModel
         end
 
         @type_map ||= types.each_with_object({}) do |type, hash|
-          if !type.is_a?(Object)
-            raise('Discriminator property can only be used with Object types')
-          end
-
-          discriminator_property = type.type.properties[discriminator]
-          discriminator_values = if discriminator_property&.type.is_a?(Const)
-                                   [discriminator_property.type.value]
-                                 elsif discriminator_property&.type.is_a?(Enum)
-                                   discriminator_property.type.values
-                                 else
-                                   raise('Discriminator property must be of type Const or Enum')
-                                 end
-          discriminator_values.each do |value|
+          discriminator_values_for(type).each do |value|
             hash[value] ||= []
             hash[value] << type
           end
+        end
+      end
+
+      # @param [TypeSpec] type
+      # @return [::Array]
+      def discriminator_values_for(type)
+        if !type.is_a?(Object)
+          raise(Errors::SchemaDefinitionError, 'Discriminator property can only be used with Object types')
+        end
+
+        property = type.type.properties[discriminator]
+        case property&.type
+        when Const
+          [property.type.value]
+        when Enum
+          property.type.values
+        else
+          raise(Errors::SchemaDefinitionError, 'Discriminator property must be of type Const or Enum')
         end
       end
 

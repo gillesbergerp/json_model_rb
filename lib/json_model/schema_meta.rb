@@ -31,23 +31,15 @@ module JsonModel
         @meta_attributes ||= {}
       end
 
-      # @param [String, nil] description
-      # @return [String, nil]
-      def description(description = nil)
-        if description
-          meta_attributes[:description] = description
-        else
-          meta_attributes[:description]
-        end
-      end
-
-      # @param [String, nil] title
-      # @return [String, nil]
-      def title(title = nil)
-        if title
-          meta_attributes[:title] = title
-        else
-          meta_attributes[:title]
+      # Plain metadata keywords share one getter/setter shape: called without an
+      # argument they read the stored value, called with one they write it.
+      %i(title description).each do |attribute|
+        define_method(attribute) do |value = nil|
+          if value.nil?
+            meta_attributes[attribute]
+          else
+            meta_attributes[attribute] = value
+          end
         end
       end
 
